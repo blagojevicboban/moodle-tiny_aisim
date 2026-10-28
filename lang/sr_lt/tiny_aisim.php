@@ -24,36 +24,32 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['pluginname'] = 'AI Simulacija';
 $string['button'] = 'Ubaci AI simulaciju';
-$string['menuitem'] = 'AI simulacija...';
-$string['dialogtitle'] = 'Umetanje / Uređivanje AI simulacije';
-$string['insert'] = 'Ubaci simulaciju';
-$string['update'] = 'Ažuriraj simulaciju';
 $string['cancel'] = 'Otkaži';
-$string['privacy:metadata'] = 'Dodatak Tiny AI Simulacija ne čuva nikakve lične podatke.';
-
-// Opcije simulacija.
-$string['simtype'] = 'Tip simulacije';
-$string['sim_cm'] = 'Matrica konfuzije i prag odlučivanja';
-$string['sim_gd'] = 'Gradijentni spust (Gradient Descent)';
-$string['sim_reg'] = 'Polinomska regresija i regularizacija';
-$string['sim_knn'] = 'Granice odlučivanja (k-NN i Stablo odlučivanja)';
-$string['sim_km'] = 'K-Means klasterovanje';
-
-$string['scenario'] = 'Praktični scenario / Skup podataka';
-$string['threshold'] = 'Prag odlučivanja (θ)';
+$string['clusters_k'] = 'Broj klastera (K)';
 $string['costfunction'] = 'Funkcija troška J(w)';
-$string['learningrate'] = 'Stopa učenja (α)';
+$string['dialogtitle'] = 'Umetanje / Uređivanje AI simulacije';
+$string['doubleclick_hint'] = 'Dvokliknite za izmenu simulacije';
 $string['initialweight'] = 'Početna težina (w₀)';
-$string['polydegree'] = 'Stepen polinoma (d)';
-$string['regularization'] = 'Regularizacija (λ)';
+$string['insert'] = 'Ubaci simulaciju';
+$string['learningrate'] = 'Stopa učenja (α)';
+$string['maxdepth'] = 'Maksimalna dubina stabla';
+$string['menuitem'] = 'AI simulacija...';
 $string['modeltype'] = 'Početni model';
 $string['neighbors_k'] = 'Broj suseda (k)';
-$string['maxdepth'] = 'Maksimalna dubina stabla';
-$string['clusters_k'] = 'Broj klastera (K)';
-$string['readonly'] = 'Režim samo za čitanje (onemogući izmenu parametara polaznicima)';
-$string['doubleclick_hint'] = 'Dvokliknite za izmenu simulacije';
-
-$string['preview'] = 'Pregled simulacije';
 $string['placeholder_note'] = 'Interaktivna simulacija će se automatski učitati u prikazu lekcije ili pitanja.';
+$string['pluginname'] = 'AI Simulacija';
+$string['polydegree'] = 'Stepen polinoma (d)';
+$string['preview'] = 'Pregled simulacije';
+$string['privacy:metadata'] = 'Dodatak Tiny AI Simulacija ne čuva nikakve lične podatke.';
+$string['readonly'] = 'Režim samo za čitanje (onemogući izmenu parametara polaznicima)';
+$string['regularization'] = 'Regularizacija (λ)';
+$string['scenario'] = 'Praktični scenario / Skup podataka';
+$string['sim_cm'] = 'Matrica konfuzije i prag odlučivanja';
+$string['sim_gd'] = 'Gradijentni spust (Gradient Descent)';
+$string['sim_km'] = 'K-Means klasterovanje';
+$string['sim_knn'] = 'Granice odlučivanja (k-NN i Stablo odlučivanja)';
+$string['sim_reg'] = 'Polinomska regresija i regularizacija';
+$string['simtype'] = 'Tip simulacije';
+$string['threshold'] = 'Prag odlučivanja (θ)';
+$string['update'] = 'Ažuriraj simulaciju';

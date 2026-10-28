@@ -39,7 +39,6 @@ use editor_tiny\plugin_with_configuration;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class plugininfo extends plugin implements plugin_with_buttons, plugin_with_configuration, plugin_with_menuitems {
-
     /**
      * Whether the plugin is available in the given context.
      *
@@ -89,4 +88,3 @@ class plugininfo extends plugin implements plugin_with_buttons, plugin_with_conf
         return [];
     }
 }
-

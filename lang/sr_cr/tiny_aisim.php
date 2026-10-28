@@ -24,36 +24,32 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['pluginname'] = 'АИ Симулација';
 $string['button'] = 'Убаци АИ симулацију';
-$string['menuitem'] = 'АИ симулација...';
-$string['dialogtitle'] = 'Уметање / Уређивање АИ симулације';
-$string['insert'] = 'Убаци симулацију';
-$string['update'] = 'Ажурирај симулацију';
 $string['cancel'] = 'Откажи';
-$string['privacy:metadata'] = 'Додатак Tiny АИ Симулација не чува никакве личне податке.';
-
-// Опције симулација.
-$string['simtype'] = 'Тип симулације';
-$string['sim_cm'] = 'Матрица конфузије и праг одлучивања';
-$string['sim_gd'] = 'Градијентни спуст (Gradient Descent)';
-$string['sim_reg'] = 'Полиномска регресија и регуларизација';
-$string['sim_knn'] = 'Границе одлучивања (k-NN и Стабло одлучивања)';
-$string['sim_km'] = 'K-Means кластеровање';
-
-$string['scenario'] = 'Практични сценарио / Скуп података';
-$string['threshold'] = 'Праг одлучивања (θ)';
+$string['clusters_k'] = 'Број кластера (K)';
 $string['costfunction'] = 'Функција трошка J(w)';
-$string['learningrate'] = 'Стопа учења (α)';
+$string['dialogtitle'] = 'Уметање / Уређивање АИ симулације';
+$string['doubleclick_hint'] = 'Двокликните за измену симулације';
 $string['initialweight'] = 'Почетна тежина (w₀)';
-$string['polydegree'] = 'Степен полинома (d)';
-$string['regularization'] = 'Регуларизација (λ)';
+$string['insert'] = 'Убаци симулацију';
+$string['learningrate'] = 'Стопа учења (α)';
+$string['maxdepth'] = 'Максимална дубина стабла';
+$string['menuitem'] = 'АИ симулација...';
 $string['modeltype'] = 'Почетни модел';
 $string['neighbors_k'] = 'Број суседа (k)';
-$string['maxdepth'] = 'Максимална дубина стабла';
-$string['clusters_k'] = 'Број кластера (K)';
-$string['readonly'] = 'Режим само за читање (онемогући измену параметара полазницима)';
-$string['doubleclick_hint'] = 'Двокликните за измену симулације';
-
-$string['preview'] = 'Преглед симулације';
 $string['placeholder_note'] = 'Интерактивна симулација ће се аутоматски учитати у приказу лекције или питања.';
+$string['pluginname'] = 'АИ Симулација';
+$string['polydegree'] = 'Степен полинома (d)';
+$string['preview'] = 'Преглед симулације';
+$string['privacy:metadata'] = 'Додатак Tiny АИ Симулација не чува никакве личне податке.';
+$string['readonly'] = 'Режим само за читање (онемогући измену параметара полазницима)';
+$string['regularization'] = 'Регуларизација (λ)';
+$string['scenario'] = 'Практични сценарио / Скуп података';
+$string['sim_cm'] = 'Матрица конфузије и праг одлучивања';
+$string['sim_gd'] = 'Градијентни спуст (Gradient Descent)';
+$string['sim_km'] = 'K-Means кластеровање';
+$string['sim_knn'] = 'Границе одлучивања (k-NN и Стабло одлучивања)';
+$string['sim_reg'] = 'Полиномска регресија и регуларизација';
+$string['simtype'] = 'Тип симулације';
+$string['threshold'] = 'Праг одлучивања (θ)';
+$string['update'] = 'Ажурирај симулацију';
