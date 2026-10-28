@@ -119,22 +119,23 @@ export const openDialog = async(editor, existingNode = null) => {
     const s = Object.fromEntries(keys.map((k, i) => [k, stringValues[i]]));
 
     const isEdit = Boolean(existingNode);
-    let curSim = existingNode ? (existingNode.getAttribute(dataAttribute) || 'confusion_matrix') : 'confusion_matrix';
-    curSim = curSim.replace(/-/g, '_');
+    // Attribute of the simulation being edited, or the default for a new one.
+    const curAttr = (name, fallback) => (existingNode && existingNode.getAttribute(name)) || fallback;
+    const curSim = curAttr(dataAttribute, 'confusion_matrix').replace(/-/g, '_');
 
     const curAttrs = {
-        scenario: existingNode ? (existingNode.getAttribute('data-scenario') || 'quality') : 'quality',
-        threshold: existingNode ? (existingNode.getAttribute('data-threshold') || '0.50') : '0.50',
-        profile: existingNode ? (existingNode.getAttribute('data-profile') || 'convex') : 'convex',
-        lr: existingNode ? (existingNode.getAttribute('data-lr') || '0.10') : '0.10',
-        w0: existingNode ? (existingNode.getAttribute('data-w0') || '3.50') : '3.50',
-        dataset: existingNode ? (existingNode.getAttribute('data-dataset') || 'sine') : 'sine',
-        degree: existingNode ? (existingNode.getAttribute('data-degree') || '3') : '3',
-        lambda: existingNode ? (existingNode.getAttribute('data-lambda') || '0.0') : '0.0',
-        model: existingNode ? (existingNode.getAttribute('data-model') || 'knn') : 'knn',
-        k: existingNode ? (existingNode.getAttribute('data-k') || '3') : '3',
-        depth: existingNode ? (existingNode.getAttribute('data-depth') || '3') : '3',
-        readonly: existingNode ? (existingNode.getAttribute('data-readonly') === '1') : false,
+        scenario: curAttr('data-scenario', 'quality'),
+        threshold: curAttr('data-threshold', '0.50'),
+        profile: curAttr('data-profile', 'convex'),
+        lr: curAttr('data-lr', '0.10'),
+        w0: curAttr('data-w0', '3.50'),
+        dataset: curAttr('data-dataset', 'sine'),
+        degree: curAttr('data-degree', '3'),
+        lambda: curAttr('data-lambda', '0.0'),
+        model: curAttr('data-model', 'knn'),
+        k: curAttr('data-k', '3'),
+        depth: curAttr('data-depth', '3'),
+        readonly: curAttr('data-readonly', '0') === '1',
     };
 
     const opt = (val, text, selectedVal) =>
@@ -226,7 +227,7 @@ export const openDialog = async(editor, existingNode = null) => {
         `</div>` +
         `</div>` +
 
-        // k-NN & Decision Tree Fields.
+        // Decision Boundaries (k-NN & Decision Tree) Fields.
         `<div class="aisim-panel-group" data-sim="knn_tree" hidden>` +
         `<div class="form-row">` +
         `<div class="col-md-6 form-group tiny-aisim-form-group">` +
