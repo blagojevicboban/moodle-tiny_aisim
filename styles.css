@@ -1,0 +1,85 @@
+/**
+ * Tiny AI Simulation (tiny_aisim) styles.
+ */
+
+/* Placeholder in TinyMCE visual editor */
+.aisim-editor-placeholder {
+    display: block;
+    background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%);
+    border: 2px dashed #93c5fd;
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin: 1.5rem 0;
+    text-align: center;
+    color: #1e3a8a;
+    font-family: inherit;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.2s ease-in-out;
+}
+
+.aisim-editor-placeholder:hover {
+    border-color: #3b82f6;
+    background: linear-gradient(135deg, #f0fdf4 0%, #e0f2fe 100%);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.12);
+}
+
+.aisim-editor-placeholder .aisim-ph-icon {
+    font-size: 2rem;
+    margin-bottom: 8px;
+}
+
+.aisim-editor-placeholder .aisim-ph-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1e40af;
+    margin-bottom: 6px;
+}
+
+.aisim-editor-placeholder .aisim-ph-desc {
+    font-size: 0.875rem;
+    color: #64748b;
+    margin-bottom: 10px;
+}
+
+.aisim-editor-placeholder .aisim-ph-pill {
+    display: inline-block;
+    background: #dbeafe;
+    color: #1d4ed8;
+    padding: 4px 12px;
+    border-radius: 9999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+/* Modal dialog configuration styles */
+.tiny-aisim-modal-body {
+    padding: 1rem;
+}
+
+.tiny-aisim-form-group {
+    margin-bottom: 1.25rem;
+}
+
+.tiny-aisim-form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+    color: #334155;
+}
+
+.tiny-aisim-select,
+.tiny-aisim-input {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 0.95rem;
+}
+
+.tiny-aisim-help {
+    font-size: 0.8rem;
+    color: #64748b;
+    margin-top: 0.3rem;
+}
+
