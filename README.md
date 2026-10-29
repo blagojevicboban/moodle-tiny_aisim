@@ -34,13 +34,19 @@ Developed as part of the **AI for VET** project (*Artificial Intelligence for Vo
 
 1. Copy the `tiny_aisim` directory into your Moodle installation under `lib/editor/tiny/plugins/aisim`:
    ```bash
-   git clone https://github.com/aiforvet/moodle-tiny_aisim.git lib/editor/tiny/plugins/aisim
+   git clone https://github.com/blagojevicboban/moodle-tiny_aisim.git lib/editor/tiny/plugins/aisim
    ```
 2. Run Moodle database upgrade:
    ```bash
    php admin/cli/upgrade.php
    ```
 3. Ensure the filter `filter_aisim` is installed and enabled under **Site administration > Plugins > Filters > Manage filters**.
+
+## Documentation & Teacher Guide
+
+- 🇷🇸 **[Pedagoško-tehnički priručnik za nastavnike](docs/PRIRUCNIK_ZA_NASTAVNIKE.md)**
+- 🇬🇧 **[Pedagogical and Technical Teacher Guide](docs/TEACHER_GUIDE.md)**
+- 📦 **[Pre-packaged Course Backup (.mbz)](https://github.com/blagojevicboban/moodle-qtype_aisim/releases/download/v0.5.0/aiforvet_simulations_demo_course.mbz)**
 
 ## License
 
