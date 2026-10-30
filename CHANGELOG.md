@@ -2,6 +2,10 @@
 
 All notable changes to the `tiny_aisim` plugin will be documented in this file.
 
+## [0.7.0] - 2026-10-30
+### Added
+- Convolution & Image Filters in the dialog (image, ready-made filter, optional target filter).
+
 ## [0.6.0] - 2026-10-30
 ### Added
 - Perceptron & Neural Network in the dialog (dataset, hidden layers, neurons per layer, activation, learning rate).

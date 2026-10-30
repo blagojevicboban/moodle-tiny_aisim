@@ -10,6 +10,18 @@ import Modal from 'core/modal';
 import {getStrings} from 'core/str';
 import {component, dataAttribute, cardClass, placeholderClass} from './common';
 
+/** Convolution kernels of filter_aisim, as [value, label]. */
+const CONV_FILTERS = [
+    ['identity', 'Identity (Identitet)'],
+    ['box', 'Blur – average (Zamućenje – prosek)'],
+    ['gaussian', 'Gaussian blur (Gausovo zamućenje)'],
+    ['sharpen', 'Sharpen (Izoštravanje)'],
+    ['sobelx', 'Sobel – vertical edges (vertikalne ivice)'],
+    ['sobely', 'Sobel – horizontal edges (horizontalne ivice)'],
+    ['laplacian', 'Laplacian – all edges (sve ivice)'],
+    ['emboss', 'Emboss (Reljef)'],
+];
+
 /**
  * Escape HTML special characters for attributes and text.
  *
@@ -69,6 +81,13 @@ const formatSummary = (simType, attrs, s) => {
                 desc: `${s.scenario}: ${attrs.dataset} | ${s.hiddenlayers}: ${attrs.layers} | ` +
                     `${s.neuronsperlayer}: ${attrs.neurons} | ${attrs.activation} | α = ${attrs.lr}`,
             };
+        case 'convolution':
+            return {
+                icon: '🖼️',
+                title: s.sim_conv,
+                desc: `${s.image}: ${attrs.image} | ${s.filter}: ${attrs.preset}` +
+                    (attrs.target ? ` | ${s.targetfilter}: ${attrs.target}` : ''),
+            };
         default:
             return {
                 icon: '🤖',
@@ -116,11 +135,11 @@ const buildSimulationHtml = (simType, attrs, s) => {
 export const openDialog = async(editor, existingNode = null) => {
     const keys = [
         'pluginname', 'dialogtitle', 'insert', 'update', 'cancel',
-        'simtype', 'sim_cm', 'sim_gd', 'sim_reg', 'sim_knn', 'sim_km', 'sim_nn',
+        'simtype', 'sim_cm', 'sim_gd', 'sim_reg', 'sim_knn', 'sim_km', 'sim_nn', 'sim_conv',
         'scenario', 'threshold', 'costfunction', 'learningrate',
         'initialweight', 'polydegree', 'regularization', 'modeltype',
         'neighbors_k', 'maxdepth', 'clusters_k', 'readonly',
-        'hiddenlayers', 'neuronsperlayer', 'activationfn',
+        'hiddenlayers', 'neuronsperlayer', 'activationfn', 'image', 'filter', 'targetfilter', 'notarget',
         'doubleclick_hint', 'preview', 'placeholder_note',
     ];
     const stringValues = await getStrings(keys.map((key) => ({key, component})));
@@ -146,6 +165,9 @@ export const openDialog = async(editor, existingNode = null) => {
         layers: curAttr('data-layers', '1'),
         neurons: curAttr('data-neurons', '4'),
         activation: curAttr('data-activation', 'tanh'),
+        image: curAttr('data-image', 'shapes'),
+        preset: curAttr('data-preset', 'identity'),
+        target: curAttr('data-target', ''),
         readonly: curAttr('data-readonly', '0') === '1',
     };
 
@@ -163,6 +185,7 @@ export const openDialog = async(editor, existingNode = null) => {
         opt('knn_tree', s.sim_knn, curSim) +
         opt('kmeans', s.sim_km, curSim) +
         opt('neural_network', s.sim_nn, curSim) +
+        opt('convolution', s.sim_conv, curSim) +
         `</select>` +
         `</div>` +
 
@@ -352,6 +375,34 @@ export const openDialog = async(editor, existingNode = null) => {
         `</div>` +
         `</div>` +
 
+        // Convolution & Image Filters Fields.
+        `<div class="aisim-panel-group" data-sim="convolution" hidden>` +
+        `<div class="form-row">` +
+        `<div class="col-md-4 form-group tiny-aisim-form-group">` +
+        `<label for="aisim-conv-image">${s.image}</label>` +
+        `<select id="aisim-conv-image" class="form-control custom-select">` +
+        opt('shapes', 'Shapes (Oblici)', curAttrs.image) +
+        opt('stripes', 'Stripes (Pruge)', curAttrs.image) +
+        opt('face', 'Smiley (Smajli)', curAttrs.image) +
+        opt('noisy', 'Shapes with noise (Oblici sa šumom)', curAttrs.image) +
+        `</select>` +
+        `</div>` +
+        `<div class="col-md-4 form-group tiny-aisim-form-group">` +
+        `<label for="aisim-conv-preset">${s.filter}</label>` +
+        `<select id="aisim-conv-preset" class="form-control custom-select">` +
+        CONV_FILTERS.map(([v, text]) => opt(v, text, curAttrs.preset)).join('') +
+        `</select>` +
+        `</div>` +
+        `<div class="col-md-4 form-group tiny-aisim-form-group">` +
+        `<label for="aisim-conv-target">${s.targetfilter}</label>` +
+        `<select id="aisim-conv-target" class="form-control custom-select">` +
+        opt('', s.notarget, curAttrs.target) +
+        CONV_FILTERS.filter(([v]) => v !== 'identity').map(([v, text]) => opt(v, text, curAttrs.target)).join('') +
+        `</select>` +
+        `</div>` +
+        `</div>` +
+        `</div>` +
+
         // Read-only Checkbox.
         `<div class="form-group custom-control custom-checkbox tiny-aisim-form-group mt-3">` +
         `<input type="checkbox" class="custom-control-input" id="aisim-opt-readonly"` +
@@ -425,6 +476,10 @@ export const openDialog = async(editor, existingNode = null) => {
             attrs.neurons = root.querySelector('#aisim-nn-neurons').value;
             attrs.activation = root.querySelector('#aisim-nn-activation').value;
             attrs.lr = parseFloat(root.querySelector('#aisim-nn-lr').value || '0.30').toFixed(2);
+        } else if (simType === 'convolution') {
+            attrs.image = root.querySelector('#aisim-conv-image').value;
+            attrs.preset = root.querySelector('#aisim-conv-preset').value;
+            attrs.target = root.querySelector('#aisim-conv-target').value;
         }
 
         return {simType, attrs};
