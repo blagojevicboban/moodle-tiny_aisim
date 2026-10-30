@@ -88,6 +88,12 @@ const formatSummary = (simType, attrs, s) => {
                 desc: `${s.image}: ${attrs.image} | ${s.filter}: ${attrs.preset}` +
                     (attrs.target ? ` | ${s.targetfilter}: ${attrs.target}` : ''),
             };
+        case 'q_learning':
+            return {
+                icon: '🤖',
+                title: s.sim_ql,
+                desc: `${s.gridmap}: ${attrs.map} | α = ${attrs.alpha} | γ = ${attrs.gamma} | ε = ${attrs.epsilon}`,
+            };
         default:
             return {
                 icon: '🤖',
@@ -135,11 +141,12 @@ const buildSimulationHtml = (simType, attrs, s) => {
 export const openDialog = async(editor, existingNode = null) => {
     const keys = [
         'pluginname', 'dialogtitle', 'insert', 'update', 'cancel',
-        'simtype', 'sim_cm', 'sim_gd', 'sim_reg', 'sim_knn', 'sim_km', 'sim_nn', 'sim_conv',
+        'simtype', 'sim_cm', 'sim_gd', 'sim_reg', 'sim_knn', 'sim_km', 'sim_nn', 'sim_conv', 'sim_ql',
         'scenario', 'threshold', 'costfunction', 'learningrate',
         'initialweight', 'polydegree', 'regularization', 'modeltype',
         'neighbors_k', 'maxdepth', 'clusters_k', 'readonly',
         'hiddenlayers', 'neuronsperlayer', 'activationfn', 'image', 'filter', 'targetfilter', 'notarget',
+        'gridmap', 'discount', 'exploration',
         'doubleclick_hint', 'preview', 'placeholder_note',
     ];
     const stringValues = await getStrings(keys.map((key) => ({key, component})));
@@ -168,6 +175,10 @@ export const openDialog = async(editor, existingNode = null) => {
         image: curAttr('data-image', 'shapes'),
         preset: curAttr('data-preset', 'identity'),
         target: curAttr('data-target', ''),
+        map: curAttr('data-map', 'maze'),
+        alpha: curAttr('data-alpha', '0.50'),
+        gamma: curAttr('data-gamma', '0.90'),
+        epsilon: curAttr('data-epsilon', '0.20'),
         readonly: curAttr('data-readonly', '0') === '1',
     };
 
@@ -186,6 +197,7 @@ export const openDialog = async(editor, existingNode = null) => {
         opt('kmeans', s.sim_km, curSim) +
         opt('neural_network', s.sim_nn, curSim) +
         opt('convolution', s.sim_conv, curSim) +
+        opt('q_learning', s.sim_ql, curSim) +
         `</select>` +
         `</div>` +
 
@@ -403,6 +415,34 @@ export const openDialog = async(editor, existingNode = null) => {
         `</div>` +
         `</div>` +
 
+        // Reinforcement Learning (Q-learning) Fields.
+        `<div class="aisim-panel-group" data-sim="q_learning" hidden>` +
+        `<div class="form-row">` +
+        `<div class="col-md-6 form-group tiny-aisim-form-group">` +
+        `<label for="aisim-ql-map">${s.gridmap}</label>` +
+        `<select id="aisim-ql-map" class="form-control custom-select">` +
+        opt('maze', 'Maze (Lavirint)', curAttrs.map) +
+        opt('cliff', 'Cliff (Litica)', curAttrs.map) +
+        opt('treasure', 'Near or far (Blizu ili daleko)', curAttrs.map) +
+        `</select>` +
+        `</div>` +
+        `<div class="col-md-6 form-group tiny-aisim-form-group">` +
+        `<label for="aisim-ql-alpha">${s.learningrate} α</label>` +
+        `<input type="number" id="aisim-ql-alpha" class="form-control" min="0.05" max="1" step="0.05" value="${curAttrs.alpha}">` +
+        `</div>` +
+        `</div>` +
+        `<div class="form-row">` +
+        `<div class="col-md-6 form-group tiny-aisim-form-group">` +
+        `<label for="aisim-ql-gamma">${s.discount} γ</label>` +
+        `<input type="number" id="aisim-ql-gamma" class="form-control" min="0" max="1" step="0.05" value="${curAttrs.gamma}">` +
+        `</div>` +
+        `<div class="col-md-6 form-group tiny-aisim-form-group">` +
+        `<label for="aisim-ql-epsilon">${s.exploration} ε</label>` +
+        `<input type="number" id="aisim-ql-epsilon" class="form-control" min="0" max="1" step="0.05" value="${curAttrs.epsilon}">` +
+        `</div>` +
+        `</div>` +
+        `</div>` +
+
         // Read-only Checkbox.
         `<div class="form-group custom-control custom-checkbox tiny-aisim-form-group mt-3">` +
         `<input type="checkbox" class="custom-control-input" id="aisim-opt-readonly"` +
@@ -480,6 +520,12 @@ export const openDialog = async(editor, existingNode = null) => {
             attrs.image = root.querySelector('#aisim-conv-image').value;
             attrs.preset = root.querySelector('#aisim-conv-preset').value;
             attrs.target = root.querySelector('#aisim-conv-target').value;
+        } else if (simType === 'q_learning') {
+            const num = (id, fallback) => parseFloat(root.querySelector(id).value || fallback).toFixed(2);
+            attrs.map = root.querySelector('#aisim-ql-map').value;
+            attrs.alpha = num('#aisim-ql-alpha', '0.50');
+            attrs.gamma = num('#aisim-ql-gamma', '0.90');
+            attrs.epsilon = num('#aisim-ql-epsilon', '0.20');
         }
 
         return {simType, attrs};

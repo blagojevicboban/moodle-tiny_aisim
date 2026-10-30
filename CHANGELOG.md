@@ -2,6 +2,10 @@
 
 All notable changes to the `tiny_aisim` plugin will be documented in this file.
 
+## [0.8.0] - 2026-10-30
+### Added
+- Reinforcement Learning (Q-learning) in the dialog (map, learning rate α, discount factor γ, exploration ε).
+
 ## [0.7.0] - 2026-10-30
 ### Added
 - Convolution & Image Filters in the dialog (image, ready-made filter, optional target filter).
