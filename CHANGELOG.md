@@ -2,6 +2,11 @@
 
 All notable changes to the `tiny_aisim` plugin will be documented in this file.
 
+## [0.5.1] - 2026-10-30
+### Changed
+- Students no longer get the AI Simulation button by default (`tiny/aisim:viewplugin` is given to managers and teachers only). The upgrade removes the old default from student roles.
+- README aligned with `qtype_aisim` and `filter_aisim`.
+
 ## [0.5.0] - 2026-10-28
 ### Added
 - Initial release of Tiny AI Simulation (`tiny_aisim`) editor plugin.

@@ -9,7 +9,7 @@
 
 Developed as part of the Erasmus+ **AI for VET** project (*AI for Vocational Education and Training* — [aiforvet.eu](https://aiforvet.eu/)).
 
-> Status: **alpha** (v0.5.0).
+> Status: **alpha** (v0.5.1).
 
 ---
 
@@ -36,7 +36,7 @@ Developed as part of the Erasmus+ **AI for VET** project (*AI for Vocational Edu
 
 The simulation is saved as a `<div data-aisim="...">` element with its settings in `data-*` attributes, which `filter_aisim` turns into the interactive simulation.
 
-The button is controlled by the `tiny/aisim:viewplugin` capability.
+The button is controlled by the `tiny/aisim:viewplugin` capability (managers and teachers by default).
 
 ---
 
