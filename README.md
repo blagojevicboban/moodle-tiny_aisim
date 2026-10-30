@@ -46,7 +46,7 @@ Developed as part of the **AI for VET** project (*Artificial Intelligence for Vo
 
 - 🇷🇸 **[Pedagoško-tehnički priručnik za nastavnike](docs/PRIRUCNIK_ZA_NASTAVNIKE.md)**
 - 🇬🇧 **[Pedagogical and Technical Teacher Guide](docs/TEACHER_GUIDE.md)**
-- 📦 **[Pre-packaged Course Backup (.mbz)](https://github.com/blagojevicboban/moodle-qtype_aisim/releases/download/v0.5.0/aiforvet_simulations_demo_course.mbz)**
+- 📦 **[Pre-packaged Course Backup (.mbz)](https://github.com/blagojevicboban/moodle-qtype_aisim/releases/download/v0.5.2/aiforvet_simulations_demo_course.mbz)**
 
 ## License
 
