@@ -2,6 +2,10 @@
 
 All notable changes to the `tiny_aisim` plugin will be documented in this file.
 
+## [0.9.1] - 2026-10-30
+### Changed
+- Maturity: beta.
+
 ## [0.9.0] - 2026-10-30
 ### Added
 - Data Split & Bias in the dialog (population, sample size, share of factory B, test share, k).
