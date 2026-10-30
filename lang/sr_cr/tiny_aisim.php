@@ -24,12 +24,14 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+$string['activationfn'] = 'Активациона функција';
 $string['button'] = 'Убаци АИ симулацију';
 $string['cancel'] = 'Откажи';
 $string['clusters_k'] = 'Број кластера (K)';
 $string['costfunction'] = 'Функција трошка J(w)';
 $string['dialogtitle'] = 'Уметање / Уређивање АИ симулације';
 $string['doubleclick_hint'] = 'Двокликните за измену симулације';
+$string['hiddenlayers'] = 'Скривени слојеви';
 $string['initialweight'] = 'Почетна тежина (w₀)';
 $string['insert'] = 'Убаци симулацију';
 $string['learningrate'] = 'Стопа учења (α)';
@@ -37,6 +39,7 @@ $string['maxdepth'] = 'Максимална дубина стабла';
 $string['menuitem'] = 'АИ симулација...';
 $string['modeltype'] = 'Почетни модел';
 $string['neighbors_k'] = 'Број суседа (k)';
+$string['neuronsperlayer'] = 'Неурона по слоју';
 $string['placeholder_note'] = 'Интерактивна симулација ће се аутоматски учитати у приказу лекције или питања.';
 $string['pluginname'] = 'АИ Симулација';
 $string['polydegree'] = 'Степен полинома (d)';
@@ -49,6 +52,7 @@ $string['sim_cm'] = 'Матрица конфузије и праг одлучи�
 $string['sim_gd'] = 'Градијентни спуст (Gradient Descent)';
 $string['sim_km'] = 'K-Means кластеровање';
 $string['sim_knn'] = 'Границе одлучивања (k-NN и Стабло одлучивања)';
+$string['sim_nn'] = 'Перцептрон и неуронска мрежа';
 $string['sim_reg'] = 'Полиномска регресија и регуларизација';
 $string['simtype'] = 'Тип симулације';
 $string['threshold'] = 'Праг одлучивања (θ)';

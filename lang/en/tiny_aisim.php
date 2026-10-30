@@ -24,12 +24,14 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+$string['activationfn'] = 'Activation Function';
 $string['button'] = 'Insert AI Simulation';
 $string['cancel'] = 'Cancel';
 $string['clusters_k'] = 'Number of Clusters (K)';
 $string['costfunction'] = 'Cost Function J(w)';
 $string['dialogtitle'] = 'Insert / Edit AI Simulation';
 $string['doubleclick_hint'] = 'Double-click to edit simulation';
+$string['hiddenlayers'] = 'Hidden Layers';
 $string['initialweight'] = 'Initial Weight (w₀)';
 $string['insert'] = 'Insert Simulation';
 $string['learningrate'] = 'Learning Rate (α)';
@@ -37,6 +39,7 @@ $string['maxdepth'] = 'Tree Max Depth';
 $string['menuitem'] = 'AI Simulation...';
 $string['modeltype'] = 'Initial Model';
 $string['neighbors_k'] = 'Nearest Neighbors (k)';
+$string['neuronsperlayer'] = 'Neurons per Layer';
 $string['placeholder_note'] = 'The interactive simulation engine will render automatically in student and reader view.';
 $string['pluginname'] = 'AI Simulation';
 $string['polydegree'] = 'Polynomial Degree (d)';
@@ -49,6 +52,7 @@ $string['sim_cm'] = 'Confusion Matrix & Classification Threshold';
 $string['sim_gd'] = 'Gradient Descent Optimization';
 $string['sim_km'] = 'K-Means Clustering';
 $string['sim_knn'] = 'Decision Boundaries (k-NN & Decision Tree)';
+$string['sim_nn'] = 'Perceptron & Neural Network';
 $string['sim_reg'] = 'Polynomial Regression & Regularization';
 $string['simtype'] = 'Simulation Type';
 $string['threshold'] = 'Decision Threshold (θ)';

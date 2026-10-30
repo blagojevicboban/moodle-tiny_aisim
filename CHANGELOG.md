@@ -2,6 +2,14 @@
 
 All notable changes to the `tiny_aisim` plugin will be documented in this file.
 
+## [0.6.0] - 2026-10-30
+### Added
+- Perceptron & Neural Network in the dialog (dataset, hidden layers, neurons per layer, activation, learning rate).
+
+### Fixed
+- The dialog offered datasets the simulations do not have (regression "linear" and "noisy", K-Means "rings"); it now
+  offers sine / quadratic / engine and blobs3 / blobs4 / uniform. Added the gradient descent "plateau" profile.
+
 ## [0.5.1] - 2026-10-30
 ### Changed
 - Students no longer get the AI Simulation button by default (`tiny/aisim:viewplugin` is given to managers and teachers only). The upgrade removes the old default from student roles.

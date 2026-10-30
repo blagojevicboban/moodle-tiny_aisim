@@ -9,7 +9,7 @@
 
 Developed as part of the Erasmus+ **AI for VET** project (*AI for Vocational Education and Training* — [aiforvet.eu](https://aiforvet.eu/)).
 
-> Status: **alpha** (v0.5.1).
+> Status: **alpha** (v0.6.0).
 
 ---
 
@@ -18,8 +18,8 @@ Developed as part of the Erasmus+ **AI for VET** project (*AI for Vocational Edu
 | Feature | Description |
 |---|---|
 | 🧩 **Editor Integration** | An **Insert AI Simulation** button on the toolbar and **AI Simulation...** in the *Insert* menu. |
-| 🎯 **5 Simulation Engines** | Confusion Matrix & Threshold, Gradient Descent Optimization, Polynomial Regression & Regularization, Decision Boundaries (k-NN / Decision Tree), and K-Means Clustering. |
-| 🎛️ **Configuration Dialog** | Simulation type, scenario / dataset and its own parameters (threshold, learning rate, initial weight, degree, λ, k, tree depth), with a live preview. |
+| 🎯 **6 Simulation Engines** | Confusion Matrix & Threshold, Gradient Descent Optimization, Polynomial Regression & Regularization, Decision Boundaries (k-NN / Decision Tree), K-Means Clustering, and Perceptron & Neural Network. |
+| 🎛️ **Configuration Dialog** | Simulation type, scenario / dataset and its own parameters (threshold, learning rate, initial weight, degree, λ, k, tree depth, hidden layers, neurons, activation), with a live preview. |
 | 🔒 **Read-only Mode** | Optionally locks the parameters so students can explore but not change them. |
 | ✏️ **Double-click Editing** | Double-clicking a simulation card in the editor reopens the dialog with its current settings. |
 | 🛡️ **Safe Placeholders** | Simulations appear in the editor as non-editable cards (`contenteditable="false"`), so their settings are not broken while typing. |

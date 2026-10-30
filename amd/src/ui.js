@@ -62,6 +62,13 @@ const formatSummary = (simType, attrs, s) => {
                 title: s.sim_km,
                 desc: `${s.scenario}: ${attrs.dataset} | K = ${attrs.k}`,
             };
+        case 'neural_network':
+            return {
+                icon: '🧠',
+                title: s.sim_nn,
+                desc: `${s.scenario}: ${attrs.dataset} | ${s.hiddenlayers}: ${attrs.layers} | ` +
+                    `${s.neuronsperlayer}: ${attrs.neurons} | ${attrs.activation} | α = ${attrs.lr}`,
+            };
         default:
             return {
                 icon: '🤖',
@@ -109,10 +116,11 @@ const buildSimulationHtml = (simType, attrs, s) => {
 export const openDialog = async(editor, existingNode = null) => {
     const keys = [
         'pluginname', 'dialogtitle', 'insert', 'update', 'cancel',
-        'simtype', 'sim_cm', 'sim_gd', 'sim_reg', 'sim_knn', 'sim_km',
+        'simtype', 'sim_cm', 'sim_gd', 'sim_reg', 'sim_knn', 'sim_km', 'sim_nn',
         'scenario', 'threshold', 'costfunction', 'learningrate',
         'initialweight', 'polydegree', 'regularization', 'modeltype',
         'neighbors_k', 'maxdepth', 'clusters_k', 'readonly',
+        'hiddenlayers', 'neuronsperlayer', 'activationfn',
         'doubleclick_hint', 'preview', 'placeholder_note',
     ];
     const stringValues = await getStrings(keys.map((key) => ({key, component})));
@@ -135,6 +143,9 @@ export const openDialog = async(editor, existingNode = null) => {
         model: curAttr('data-model', 'knn'),
         k: curAttr('data-k', '3'),
         depth: curAttr('data-depth', '3'),
+        layers: curAttr('data-layers', '1'),
+        neurons: curAttr('data-neurons', '4'),
+        activation: curAttr('data-activation', 'tanh'),
         readonly: curAttr('data-readonly', '0') === '1',
     };
 
@@ -151,6 +162,7 @@ export const openDialog = async(editor, existingNode = null) => {
         opt('regression', s.sim_reg, curSim) +
         opt('knn_tree', s.sim_knn, curSim) +
         opt('kmeans', s.sim_km, curSim) +
+        opt('neural_network', s.sim_nn, curSim) +
         `</select>` +
         `</div>` +
 
@@ -178,6 +190,7 @@ export const openDialog = async(editor, existingNode = null) => {
         `<select id="aisim-gd-profile" class="form-control custom-select">` +
         opt('convex', 'Convex (J(w) = w² - Global Minimum)', curAttrs.profile) +
         opt('nonconvex', 'Non-Convex (Multimodal - Local Minima)', curAttrs.profile) +
+        opt('plateau', 'Plateau (Flat region - Slow progress)', curAttrs.profile) +
         `</select>` +
         `</div>` +
         `<div class="form-row">` +
@@ -200,8 +213,8 @@ export const openDialog = async(editor, existingNode = null) => {
         `<label for="aisim-reg-dataset">${s.scenario}</label>` +
         `<select id="aisim-reg-dataset" class="form-control custom-select">` +
         opt('sine', 'Sine Wave with Noise (Sinusni signal sa šumom)', curAttrs.dataset) +
-        opt('linear', 'Linear Trend (Linearni trend)', curAttrs.dataset) +
-        opt('noisy', 'Complex Curve (Kompleksna kriva)', curAttrs.dataset) +
+        opt('quadratic', 'Quadratic Trend (Kvadratni trend)', curAttrs.dataset) +
+        opt('engine', 'Engine Data (Podaci o motoru)', curAttrs.dataset) +
         `</select>` +
         `</div>` +
         `<div class="form-row">` +
@@ -280,7 +293,7 @@ export const openDialog = async(editor, existingNode = null) => {
         `<select id="aisim-km-dataset" class="form-control custom-select">` +
         opt('blobs3', '3 Clusters (3 klastera)', curAttrs.dataset) +
         opt('blobs4', '4 Clusters (4 klastera)', curAttrs.dataset) +
-        opt('rings', 'Concentric Rings (Koncentrični prstenovi)', curAttrs.dataset) +
+        opt('uniform', 'Uniform – No Natural Groups (Bez prirodnih grupa)', curAttrs.dataset) +
         `</select>` +
         `</div>` +
         `<div class="col-md-6 form-group tiny-aisim-form-group">` +
@@ -292,6 +305,49 @@ export const openDialog = async(editor, existingNode = null) => {
         opt('5', 'K = 5', curAttrs.k) +
         opt('6', 'K = 6', curAttrs.k) +
         `</select>` +
+        `</div>` +
+        `</div>` +
+        `</div>` +
+
+        // Perceptron & Neural Network Fields.
+        `<div class="aisim-panel-group" data-sim="neural_network" hidden>` +
+        `<div class="form-row">` +
+        `<div class="col-md-6 form-group tiny-aisim-form-group">` +
+        `<label for="aisim-nn-dataset">${s.scenario}</label>` +
+        `<select id="aisim-nn-dataset" class="form-control custom-select">` +
+        opt('linear', 'Linearly Separable (Linearno razdvojivi)', curAttrs.dataset) +
+        opt('xor', 'XOR (Ukršteni)', curAttrs.dataset) +
+        opt('circles', 'Circle in a Circle (Krug u krugu)', curAttrs.dataset) +
+        `</select>` +
+        `</div>` +
+        `<div class="col-md-6 form-group tiny-aisim-form-group">` +
+        `<label for="aisim-nn-layers">${s.hiddenlayers}</label>` +
+        `<select id="aisim-nn-layers" class="form-control custom-select">` +
+        opt('0', '0 (Perceptron)', curAttrs.layers) +
+        opt('1', '1', curAttrs.layers) +
+        opt('2', '2', curAttrs.layers) +
+        `</select>` +
+        `</div>` +
+        `</div>` +
+        `<div class="form-row">` +
+        `<div class="col-md-4 form-group tiny-aisim-form-group">` +
+        `<label for="aisim-nn-neurons">${s.neuronsperlayer}</label>` +
+        `<select id="aisim-nn-neurons" class="form-control custom-select">` +
+        [1, 2, 3, 4, 5, 6, 7, 8].map((n) => opt(String(n), String(n), curAttrs.neurons)).join('') +
+        `</select>` +
+        `</div>` +
+        `<div class="col-md-4 form-group tiny-aisim-form-group">` +
+        `<label for="aisim-nn-activation">${s.activationfn}</label>` +
+        `<select id="aisim-nn-activation" class="form-control custom-select">` +
+        opt('tanh', 'tanh', curAttrs.activation) +
+        opt('sigmoid', 'sigmoid', curAttrs.activation) +
+        opt('relu', 'ReLU', curAttrs.activation) +
+        `</select>` +
+        `</div>` +
+        `<div class="col-md-4 form-group tiny-aisim-form-group">` +
+        `<label for="aisim-nn-lr">${s.learningrate}</label>` +
+        `<input type="number" id="aisim-nn-lr" class="form-control" ` +
+        `min="0.01" max="3.00" step="0.01" value="${curAttrs.lr}">` +
         `</div>` +
         `</div>` +
         `</div>` +
@@ -363,6 +419,12 @@ export const openDialog = async(editor, existingNode = null) => {
         } else if (simType === 'kmeans') {
             attrs.dataset = root.querySelector('#aisim-km-dataset').value;
             attrs.k = root.querySelector('#aisim-km-k').value;
+        } else if (simType === 'neural_network') {
+            attrs.dataset = root.querySelector('#aisim-nn-dataset').value;
+            attrs.layers = root.querySelector('#aisim-nn-layers').value;
+            attrs.neurons = root.querySelector('#aisim-nn-neurons').value;
+            attrs.activation = root.querySelector('#aisim-nn-activation').value;
+            attrs.lr = parseFloat(root.querySelector('#aisim-nn-lr').value || '0.30').toFixed(2);
         }
 
         return {simType, attrs};

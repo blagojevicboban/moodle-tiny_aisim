@@ -24,12 +24,14 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+$string['activationfn'] = 'Aktivaciona funkcija';
 $string['button'] = 'Ubaci AI simulaciju';
 $string['cancel'] = 'Otkaži';
 $string['clusters_k'] = 'Broj klastera (K)';
 $string['costfunction'] = 'Funkcija troška J(w)';
 $string['dialogtitle'] = 'Umetanje / Uređivanje AI simulacije';
 $string['doubleclick_hint'] = 'Dvokliknite za izmenu simulacije';
+$string['hiddenlayers'] = 'Skriveni slojevi';
 $string['initialweight'] = 'Početna težina (w₀)';
 $string['insert'] = 'Ubaci simulaciju';
 $string['learningrate'] = 'Stopa učenja (α)';
@@ -37,6 +39,7 @@ $string['maxdepth'] = 'Maksimalna dubina stabla';
 $string['menuitem'] = 'AI simulacija...';
 $string['modeltype'] = 'Početni model';
 $string['neighbors_k'] = 'Broj suseda (k)';
+$string['neuronsperlayer'] = 'Neurona po sloju';
 $string['placeholder_note'] = 'Interaktivna simulacija će se automatski učitati u prikazu lekcije ili pitanja.';
 $string['pluginname'] = 'AI Simulacija';
 $string['polydegree'] = 'Stepen polinoma (d)';
@@ -49,6 +52,7 @@ $string['sim_cm'] = 'Matrica konfuzije i prag odlučivanja';
 $string['sim_gd'] = 'Gradijentni spust (Gradient Descent)';
 $string['sim_km'] = 'K-Means klasterovanje';
 $string['sim_knn'] = 'Granice odlučivanja (k-NN i Stablo odlučivanja)';
+$string['sim_nn'] = 'Perceptron i neuronska mreža';
 $string['sim_reg'] = 'Polinomska regresija i regularizacija';
 $string['simtype'] = 'Tip simulacije';
 $string['threshold'] = 'Prag odlučivanja (θ)';
