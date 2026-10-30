@@ -94,6 +94,12 @@ const formatSummary = (simType, attrs, s) => {
                 title: s.sim_ql,
                 desc: `${s.gridmap}: ${attrs.map} | α = ${attrs.alpha} | γ = ${attrs.gamma} | ε = ${attrs.epsilon}`,
             };
+        case 'data_bias':
+            return {
+                icon: '⚖️',
+                title: s.sim_db,
+                desc: `n = ${attrs.n} | ${s.groupshare}: ${attrs.share}% | ${s.testshare}: ${attrs.test}% | k = ${attrs.k}`,
+            };
         default:
             return {
                 icon: '🤖',
@@ -141,12 +147,12 @@ const buildSimulationHtml = (simType, attrs, s) => {
 export const openDialog = async(editor, existingNode = null) => {
     const keys = [
         'pluginname', 'dialogtitle', 'insert', 'update', 'cancel',
-        'simtype', 'sim_cm', 'sim_gd', 'sim_reg', 'sim_knn', 'sim_km', 'sim_nn', 'sim_conv', 'sim_ql',
+        'simtype', 'sim_cm', 'sim_gd', 'sim_reg', 'sim_knn', 'sim_km', 'sim_nn', 'sim_conv', 'sim_ql', 'sim_db',
         'scenario', 'threshold', 'costfunction', 'learningrate',
         'initialweight', 'polydegree', 'regularization', 'modeltype',
         'neighbors_k', 'maxdepth', 'clusters_k', 'readonly',
         'hiddenlayers', 'neuronsperlayer', 'activationfn', 'image', 'filter', 'targetfilter', 'notarget',
-        'gridmap', 'discount', 'exploration',
+        'gridmap', 'discount', 'exploration', 'population', 'samplesize', 'groupshare', 'testshare',
         'doubleclick_hint', 'preview', 'placeholder_note',
     ];
     const stringValues = await getStrings(keys.map((key) => ({key, component})));
@@ -179,6 +185,10 @@ export const openDialog = async(editor, existingNode = null) => {
         alpha: curAttr('data-alpha', '0.50'),
         gamma: curAttr('data-gamma', '0.90'),
         epsilon: curAttr('data-epsilon', '0.20'),
+        population: curAttr('data-population', 'shifted'),
+        n: curAttr('data-n', '200'),
+        share: curAttr('data-share', '5'),
+        test: curAttr('data-test', '25'),
         readonly: curAttr('data-readonly', '0') === '1',
     };
 
@@ -198,6 +208,7 @@ export const openDialog = async(editor, existingNode = null) => {
         opt('neural_network', s.sim_nn, curSim) +
         opt('convolution', s.sim_conv, curSim) +
         opt('q_learning', s.sim_ql, curSim) +
+        opt('data_bias', s.sim_db, curSim) +
         `</select>` +
         `</div>` +
 
@@ -443,6 +454,37 @@ export const openDialog = async(editor, existingNode = null) => {
         `</div>` +
         `</div>` +
 
+        // Data Split & Bias Fields.
+        `<div class="aisim-panel-group" data-sim="data_bias" hidden>` +
+        `<div class="form-row">` +
+        `<div class="col-md-6 form-group tiny-aisim-form-group">` +
+        `<label for="aisim-db-population">${s.population}</label>` +
+        `<select id="aisim-db-population" class="form-control custom-select">` +
+        opt('shifted', 'B behaves differently (B radi drugačije)', curAttrs.population) +
+        opt('similar', 'B behaves similarly (B radi slično)', curAttrs.population) +
+        `</select>` +
+        `</div>` +
+        `<div class="col-md-6 form-group tiny-aisim-form-group">` +
+        `<label for="aisim-db-n">${s.samplesize}</label>` +
+        `<input type="number" id="aisim-db-n" class="form-control" min="40" max="400" step="20" value="${curAttrs.n}">` +
+        `</div>` +
+        `</div>` +
+        `<div class="form-row">` +
+        `<div class="col-md-4 form-group tiny-aisim-form-group">` +
+        `<label for="aisim-db-share">${s.groupshare} (%)</label>` +
+        `<input type="number" id="aisim-db-share" class="form-control" min="0" max="50" step="5" value="${curAttrs.share}">` +
+        `</div>` +
+        `<div class="col-md-4 form-group tiny-aisim-form-group">` +
+        `<label for="aisim-db-test">${s.testshare} (%)</label>` +
+        `<input type="number" id="aisim-db-test" class="form-control" min="10" max="50" step="5" value="${curAttrs.test}">` +
+        `</div>` +
+        `<div class="col-md-4 form-group tiny-aisim-form-group">` +
+        `<label for="aisim-db-k">${s.neighbors_k}</label>` +
+        `<input type="number" id="aisim-db-k" class="form-control" min="1" max="25" step="2" value="${curAttrs.k}">` +
+        `</div>` +
+        `</div>` +
+        `</div>` +
+
         // Read-only Checkbox.
         `<div class="form-group custom-control custom-checkbox tiny-aisim-form-group mt-3">` +
         `<input type="checkbox" class="custom-control-input" id="aisim-opt-readonly"` +
@@ -526,6 +568,13 @@ export const openDialog = async(editor, existingNode = null) => {
             attrs.alpha = num('#aisim-ql-alpha', '0.50');
             attrs.gamma = num('#aisim-ql-gamma', '0.90');
             attrs.epsilon = num('#aisim-ql-epsilon', '0.20');
+        } else if (simType === 'data_bias') {
+            const int = (id, fallback) => String(parseInt(root.querySelector(id).value, 10) || fallback);
+            attrs.population = root.querySelector('#aisim-db-population').value;
+            attrs.n = int('#aisim-db-n', 200);
+            attrs.share = int('#aisim-db-share', 0);
+            attrs.test = int('#aisim-db-test', 25);
+            attrs.k = int('#aisim-db-k', 5);
         }
 
         return {simType, attrs};
