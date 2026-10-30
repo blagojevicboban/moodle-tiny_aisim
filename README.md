@@ -1,54 +1,75 @@
 # Tiny AI Simulation (`tiny_aisim`)
 
-Interactive TinyMCE 6/7 editor plugin for visually inserting and editing AI/ML simulations across Moodle course content (Pages, Books, Lessons, Quiz questions, Forum posts).
+[![Moodle Plugin CI](https://github.com/blagojevicboban/moodle-tiny_aisim/actions/workflows/ci.yml/badge.svg)](https://github.com/blagojevicboban/moodle-tiny_aisim/actions/workflows/ci.yml)
+[![Moodle](https://img.shields.io/badge/Moodle-4.5%20to%205.3-orange.svg)](https://moodle.org)
+[![PHP](https://img.shields.io/badge/PHP-8.2%2B-purple.svg)](https://php.net)
+[![License](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](LICENSE)
 
-Developed as part of the **AI for VET** project (*Artificial Intelligence for Vocational Education and Training*, Erasmus+).
+**Tiny AI Simulation** (`tiny_aisim`) is a TinyMCE editor plugin for Moodle that lets teachers **insert and edit interactive AI / machine learning simulations visually**, without writing HTML, in Pages, Books, Lessons, quiz questions and forum posts. The simulations are rendered by **[filter_aisim](https://github.com/blagojevicboban/moodle-filter_aisim)**.
 
-## Features
+Developed as part of the Erasmus+ **AI for VET** project (*AI for Vocational Education and Training* — [aiforvet.eu](https://aiforvet.eu/)).
 
-- **Visual TinyMCE Integration**: Adds an AI Simulation button to the editor toolbar and "AI Simulation..." to the Insert menu.
-- **Support for 5 Simulation Engines** (rendered by `filter_aisim`):
-  1. **Confusion Matrix & Classification Threshold** (`confusion_matrix`)
-  2. **Gradient Descent Optimization** (`gradient_descent`)
-  3. **Polynomial Regression & Regularization** (`regression`)
-  4. **Decision Boundaries (k-NN & Decision Tree)** (`knn_tree`)
-  5. **K-Means Clustering** (`kmeans`)
-- **Interactive Configuration Dialog**:
-  - Dynamic parameter controls (dataset, threshold, learning rate, degree, lambda, k, depth).
-  - Optional read-only mode to prevent student parameter modification.
-  - Live simulation badge preview inside the modal dialog.
-- **Double-click Editing**: Double-clicking any existing simulation card in the editor reopens the dialog pre-filled with the current settings.
-- **Non-destructive Placeholders**: Safe `contenteditable="false"` cards prevent accidental mangling of simulation metadata while typing.
-- **Multi-language Support**: Fully localized in English (`en`), Serbian Latin (`sr_lt`), and Serbian Cyrillic (`sr_cr`).
-- **GDPR Null Provider**: Declares that no personal user data is collected or stored.
+> Status: **alpha** (v0.5.0).
 
-## Compatibility
+---
 
-- Moodle 4.5 LTS, 5.0, 5.1, 5.2, 5.3+
-- TinyMCE 6 / TinyMCE 7
-- PHP 8.2 / 8.3
-- MariaDB 10.6+ / PostgreSQL 14+
-- Requires `filter_aisim` (AI Simulation Viewer Filter)
+## ✨ Features
 
-## Installation
+| Feature | Description |
+|---|---|
+| 🧩 **Editor Integration** | An **Insert AI Simulation** button on the toolbar and **AI Simulation...** in the *Insert* menu. |
+| 🎯 **5 Simulation Engines** | Confusion Matrix & Threshold, Gradient Descent Optimization, Polynomial Regression & Regularization, Decision Boundaries (k-NN / Decision Tree), and K-Means Clustering. |
+| 🎛️ **Configuration Dialog** | Simulation type, scenario / dataset and its own parameters (threshold, learning rate, initial weight, degree, λ, k, tree depth), with a live preview. |
+| 🔒 **Read-only Mode** | Optionally locks the parameters so students can explore but not change them. |
+| ✏️ **Double-click Editing** | Double-clicking a simulation card in the editor reopens the dialog with its current settings. |
+| 🛡️ **Safe Placeholders** | Simulations appear in the editor as non-editable cards (`contenteditable="false"`), so their settings are not broken while typing. |
+| 🌍 **Multilingual** | English (`en`), Serbian Latin (`sr_lt`), and Serbian Cyrillic (`sr_cr`). |
+| 🔐 **GDPR Compliant** | Implements Moodle's Null Privacy Provider — no personal data is stored. |
 
-1. Copy the `tiny_aisim` directory into your Moodle installation under `lib/editor/tiny/plugins/aisim`:
-   ```bash
-   git clone https://github.com/blagojevicboban/moodle-tiny_aisim.git lib/editor/tiny/plugins/aisim
-   ```
-2. Run Moodle database upgrade:
-   ```bash
-   php admin/cli/upgrade.php
-   ```
-3. Ensure the filter `filter_aisim` is installed and enabled under **Site administration > Plugins > Filters > Manage filters**.
+---
 
-## Documentation & Teacher Guide
+## 💻 Usage in Moodle
+
+1. In any TinyMCE editor, click **Insert AI Simulation** (or *Insert → AI Simulation...*).
+2. Choose the simulation type and scenario, set the parameters and check the preview.
+3. Click **Insert Simulation**. The editor shows a card; students see the interactive simulation.
+
+The simulation is saved as a `<div data-aisim="...">` element with its settings in `data-*` attributes, which `filter_aisim` turns into the interactive simulation.
+
+The button is controlled by the `tiny/aisim:viewplugin` capability.
+
+---
+
+## 📋 Requirements
+
+- **Moodle**: 4.5 LTS through 5.3+
+- **PHP**: 8.2+
+- **[filter_aisim](https://github.com/blagojevicboban/moodle-filter_aisim)**: Must be installed and enabled (renders the simulations).
+
+---
+
+## 🚀 Installation
+
+### Via Git
+```bash
+cd /path/to/moodle/public/lib/editor/tiny/plugins   # (or lib/editor/tiny/plugins in Moodle < 5.1)
+git clone https://github.com/blagojevicboban/moodle-tiny_aisim.git aisim
+php admin/cli/upgrade.php
+```
+
+Then enable the filter under **Site administration → Plugins → Filters → Manage filters**.
+
+---
+
+## 📚 Documentation & Resources
 
 - 🇷🇸 **[Pedagoško-tehnički priručnik za nastavnike](docs/PRIRUCNIK_ZA_NASTAVNIKE.md)**
 - 🇬🇧 **[Pedagogical and Technical Teacher Guide](docs/TEACHER_GUIDE.md)**
-- 📦 **[Pre-packaged Course Backup (.mbz)](https://github.com/blagojevicboban/moodle-qtype_aisim/releases/download/v0.5.2/aiforvet_simulations_demo_course.mbz)**
+- 📦 **[Turnkey Course Backup (.mbz)](https://github.com/blagojevicboban/moodle-qtype_aisim/releases/download/v0.5.2/aiforvet_simulations_demo_course.mbz)**
 
-## License
+---
 
-GNU General Public License v3 or later. See [LICENSE](LICENSE).
+## 📄 License
 
+Licensed under the [GNU General Public License v3 or later](LICENSE).
+Copyright © 2026 Boban Blagojević.
