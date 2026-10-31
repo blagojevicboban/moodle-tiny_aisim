@@ -23,7 +23,7 @@ Developed as part of the Erasmus+ **AI for VET** project (*AI for Vocational Edu
 | 🔒 **Read-only Mode** | Optionally locks the parameters so students can explore but not change them. |
 | ✏️ **Double-click Editing** | Double-clicking a simulation card in the editor reopens the dialog with its current settings. |
 | 🛡️ **Safe Placeholders** | Simulations appear in the editor as non-editable cards (`contenteditable="false"`), so their settings are not broken while typing. |
-| 🌍 **Multilingual** | English (`en`), Serbian Latin (`sr_lt`), and Serbian Cyrillic (`sr_cr`). |
+| 🌍 **Multilingual** | The package ships English; Serbian Latin (`sr_lt`) and Serbian Cyrillic (`sr_cr`) translations are in this repository and go to Moodle sites through AMOS. |
 | 🔐 **GDPR Compliant** | Implements Moodle's Null Privacy Provider — no personal data is stored. |
 
 ---
