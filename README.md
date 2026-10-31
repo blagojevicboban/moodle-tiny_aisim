@@ -65,6 +65,9 @@ Then enable the filter under **Site administration → Plugins → Filters → M
 
 - 🇷🇸 **[Pedagoško-tehnički priručnik za nastavnike](docs/PRIRUCNIK_ZA_NASTAVNIKE.md)**
 - 🇬🇧 **[Pedagogical and Technical Teacher Guide](docs/TEACHER_GUIDE.md)**
+- 🇸🇰 **[Pedagogicko-technická príručka pre učiteľov](docs/PRIRUCKA_PRE_UCITELOV.md)**
+- 🇵🇹 **[Guia pedagógico e técnico para professores](docs/GUIA_DO_PROFESSOR.md)**
+- 🌐 Web version in all four languages: [sim.aiforvet.eu/guide.html](https://sim.aiforvet.eu/guide.html)
 
 ---
 
