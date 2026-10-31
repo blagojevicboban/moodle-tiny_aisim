@@ -2,14 +2,10 @@
 
 All notable changes to the `tiny_aisim` plugin will be documented in this file.
 
-## [Unreleased]
-
+## [0.9.1] - 2026-10-30
 ### Changed
 - Teacher guide 1.1 (`docs/`), also in Slovak and Portuguese.
 - The release package contains English strings only (other languages go through AMOS).
-
-## [0.9.1] - 2026-10-30
-### Changed
 - Maturity: beta.
 
 ## [0.9.0] - 2026-10-30
