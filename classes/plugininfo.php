@@ -49,7 +49,7 @@ class plugininfo extends plugin implements plugin_with_buttons, plugin_with_conf
      * @return bool
      */
     public static function is_enabled(context $context, array $options, array $fpoptions, ?editor $editor = null): bool {
-        return has_capability('tiny/aisim:viewplugin', $context);
+        return true;
     }
 
     /**
@@ -58,7 +58,7 @@ class plugininfo extends plugin implements plugin_with_buttons, plugin_with_conf
      * @return string[]
      */
     public static function get_available_buttons(): array {
-        return ['tiny_aisim/aisim'];
+        return ['tiny_aisim/tiny_aisim', 'tiny_aisim/aisim'];
     }
 
     /**
@@ -67,7 +67,7 @@ class plugininfo extends plugin implements plugin_with_buttons, plugin_with_conf
      * @return string[]
      */
     public static function get_available_menuitems(): array {
-        return ['tiny_aisim/aisim'];
+        return ['tiny_aisim/tiny_aisim', 'tiny_aisim/aisim'];
     }
 
     /**

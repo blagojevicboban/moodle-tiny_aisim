@@ -27,10 +27,11 @@
 $capabilities = [
     'tiny/aisim:viewplugin' => [
         'captype' => 'write',
-        'contextlevel' => CONTEXT_MODULE,
+        'contextlevel' => CONTEXT_SYSTEM,
         'archetypes' => [
             'editingteacher' => CAP_ALLOW,
             'teacher' => CAP_ALLOW,
+            'student' => CAP_ALLOW,
             'manager' => CAP_ALLOW,
         ],
     ],
