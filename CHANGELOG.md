@@ -2,6 +2,12 @@
 
 All notable changes to the `tiny_aisim` plugin will be documented in this file.
 
+## [0.10.0] - 2026-11-08
+### Changed
+- Placed the AI Simulation button directly in the main `content` toolbar for immediate accessibility.
+- Allowed plugin in all editor contexts (`is_enabled()` returns true, capability in `CONTEXT_SYSTEM`).
+- Version alignment with `filter_aisim` 0.10.0 and `qtype_aisim` 0.10.0.
+
 ## [0.9.1] - 2026-10-30
 ### Changed
 - Teacher guide 1.1 (`docs/`), also in Slovak and Portuguese.
