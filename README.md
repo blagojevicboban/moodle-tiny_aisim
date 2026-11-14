@@ -18,7 +18,7 @@ Developed as part of the Erasmus+ **AI for VET** project (*AI for Vocational Edu
 | Feature | Description |
 |---|---|
 | 🧩 **Editor Integration** | An **Insert AI Simulation** button on the toolbar and **AI Simulation...** in the *Insert* menu. |
-| 🎯 **12 Simulation Engines** | Confusion Matrix & Threshold, Gradient Descent Optimization, Polynomial Regression & Regularization, Decision Boundaries (k-NN / Decision Tree), K-Means Clustering, Perceptron & Neural Network, Convolution & Image Filters, Reinforcement Learning (Q-learning), Data Split & Bias, Logistic Regression, Cross-Validation, and Data Preparation (EDA). |
+| 🎯 **13 Simulation Engines** | Confusion Matrix & Threshold, Gradient Descent Optimization, Polynomial Regression & Regularization, Decision Boundaries (k-NN / Decision Tree), K-Means Clustering, Perceptron & Neural Network, Convolution & Image Filters, Reinforcement Learning (Q-learning), Data Split & Bias, Logistic Regression, Cross-Validation, Data Preparation (EDA), and Recurrent Neural Network (RNN). |
 | 🎛️ **Configuration Dialog** | Simulation type, scenario / dataset and its own parameters (threshold, learning rate, initial weight, degree, λ, k, tree depth, hidden layers, neurons, activation), with a live preview. |
 | 🔒 **Read-only Mode** | Optionally locks the parameters so students can explore but not change them. |
 | ✏️ **Double-click Editing** | Double-clicking a simulation card in the editor reopens the dialog with its current settings. |

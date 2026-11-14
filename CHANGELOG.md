@@ -2,6 +2,12 @@
 
 All notable changes to the `tiny_aisim` plugin will be documented in this file.
 
+## [0.14.0] - 2026-11-14
+### Added
+- Recurrent Neural Network (RNN) in the dialog: dataset, sequence length and the weights w, u and v.
+  Requires filter_aisim 0.14.0.
+- Teacher guide 1.5 (`docs/`).
+
 ## [0.13.0] - 2026-11-14
 ### Added
 - Data Preparation (EDA) in the dialog: dataset, k and the pipeline (missing values, outliers, scaling).

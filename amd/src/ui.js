@@ -144,6 +144,13 @@ const SIMS = [
         select('outliers', 'outliers', ['keep', 'remove'].map((k) => [k, 'dp_outliers_' + k]), 'keep', 4),
         select('scaling', 'scaling', ['none', 'minmax', 'zscore'].map((k) => [k, 'dp_scaling_' + k]), 'none', 4),
     ]},
+    {sim: 'rnn', title: 'sim_rnn', icon: '🔄', fields: [
+        select('dataset', 'scenario', ['temperature', 'memory'].map((k) => [k, 'rnn_datasets_' + k]), 'temperature'),
+        number('length', 'seqlength', [3, 30, 1, 0], 10),
+        number('w', 'memoryweight', [-1.5, 1.5, 0.05, 2], 0.5, 4),
+        number('u', 'inputweight', [-3, 3, 0.1, 2], 1, 4),
+        number('v', 'outputweight', [-4, 4, 0.1, 2], 1, 4),
+    ]},
 ];
 
 /** Strings of tiny_aisim the dialog uses (besides the field labels and simulation titles). */
