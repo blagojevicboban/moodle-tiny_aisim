@@ -16,149 +16,271 @@
 /**
  * Modal dialog and UI handling for Tiny AI Simulation.
  *
+ * The fields of every simulation are described in SIMS; the dialog is the tiny_aisim/dialog template, and the option
+ * labels are the language strings the simulations themselves use (filter_aisim), so they are translated once.
+ *
  * @module tiny_aisim/ui
  * @copyright 2026 Boban Blagojević
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 import Modal from 'core/modal';
+import Templates from 'core/templates';
 import {getStrings} from 'core/str';
 import {component, dataAttribute, cardClass, placeholderClass} from './common';
 
-/** Convolution kernels of filter_aisim, as [value, label]. */
-const CONV_FILTERS = [
-    ['identity', 'Identity (Identitet)'],
-    ['box', 'Blur – average (Zamućenje – prosek)'],
-    ['gaussian', 'Gaussian blur (Gausovo zamućenje)'],
-    ['sharpen', 'Sharpen (Izoštravanje)'],
-    ['sobelx', 'Sobel – vertical edges (vertikalne ivice)'],
-    ['sobely', 'Sobel – horizontal edges (horizontalne ivice)'],
-    ['laplacian', 'Laplacian – all edges (sve ivice)'],
-    ['emboss', 'Emboss (Reljef)'],
+const FILTER = 'filter_aisim';
+
+/**
+ * A select field. Options are [value, label]; a label is a filter_aisim string identifier, or {text} for a literal.
+ *
+ * @param {String} name data-* attribute
+ * @param {String} label tiny_aisim string identifier
+ * @param {Array} options
+ * @param {String} value default
+ * @param {Number} col Bootstrap column width
+ * @returns {Object}
+ */
+const select = (name, label, options, value, col = 6) => ({name, label, options, value, col});
+
+/**
+ * A number field.
+ *
+ * @param {String} name data-* attribute
+ * @param {String} label tiny_aisim string identifier
+ * @param {Array} range [min, max, step, digits]
+ * @param {Number} value default
+ * @param {Number} col Bootstrap column width
+ * @param {String} suffix text after the label, e.g. a symbol
+ * @returns {Object}
+ */
+const number = (name, label, range, value, col = 6, suffix = '') => {
+    const [min, max, step, digits] = range;
+    return {name, label, min, max, step, digits, value, col, suffix};
+};
+
+const text = (t) => ({text: t});
+const numbers = (list, fmt = String) => list.map((n) => [String(n), text(fmt(n))]);
+
+/** Convolution presets of filter_aisim. */
+const KERNELS = ['identity', 'box', 'gaussian', 'sharpen', 'sobelx', 'sobely', 'laplacian', 'emboss'];
+
+/** The simulations in the dialog: title string, icon and fields (their data-* attributes and defaults). */
+const SIMS = [
+    {sim: 'confusion_matrix', title: 'sim_cm', icon: '📊', fields: [
+        select('scenario', 'scenario', [['quality', 'cm_scenarios_quality_name'], ['medical', 'cm_scenarios_medical_name'],
+            ['spam', 'cm_scenarios_spam_name']], 'quality'),
+        number('threshold', 'threshold', [0.05, 0.95, 0.05, 2], 0.5),
+    ]},
+    {sim: 'gradient_descent', title: 'sim_gd', icon: '⚡', fields: [
+        select('profile', 'costfunction', [['convex', 'gd_convex'], ['nonconvex', 'gd_nonconvex'], ['plateau', 'gd_plateau']],
+            'convex', 12),
+        number('lr', 'learningrate', [0.01, 1.5, 0.01, 2], 0.1),
+        number('w0', 'initialweight', [-5, 5, 0.1, 2], 3.5),
+    ]},
+    {sim: 'regression', title: 'sim_reg', icon: '📈', fields: [
+        select('dataset', 'scenario', [['sine', 'reg_datasets_sine'], ['quadratic', 'reg_datasets_quadratic'],
+            ['engine', 'reg_datasets_engine']], 'sine', 12),
+        select('degree', 'polydegree', numbers([1, 2, 3, 4, 5, 6, 7, 8, 9]), '3'),
+        number('lambda', 'regularization', [0, 0.5, 0.01, 2], 0),
+    ]},
+    {sim: 'knn_tree', title: 'sim_knn', icon: '🌲', fields: [
+        select('model', 'modeltype', [['knn', 'knn_knn_model'], ['tree', 'knn_tree_model']], 'knn'),
+        select('dataset', 'scenario', [['moons', 'knn_datasets_moons'], ['circles', 'knn_datasets_circles'],
+            ['blobs', 'knn_datasets_blobs']], 'moons'),
+        select('k', 'neighbors_k', numbers([1, 3, 5, 7, 9, 15]), '3'),
+        select('depth', 'maxdepth', numbers([1, 2, 3, 4, 5, 6]), '3'),
+    ]},
+    {sim: 'kmeans', title: 'sim_km', icon: '🎯', fields: [
+        select('dataset', 'scenario', [['blobs3', 'km_datasets_blobs3'], ['blobs4', 'km_datasets_blobs4'],
+            ['uniform', 'km_datasets_uniform']], 'blobs3'),
+        select('k', 'clusters_k', numbers([2, 3, 4, 5, 6]), '3'),
+    ]},
+    {sim: 'neural_network', title: 'sim_nn', icon: '🧠', fields: [
+        select('dataset', 'scenario', [['linear', 'nn_datasets_linear'], ['xor', 'nn_datasets_xor'],
+            ['circles', 'nn_datasets_circles']], 'xor'),
+        select('layers', 'hiddenlayers', [['0', 'nn_layers0'], ['1', text('1')], ['2', text('2')]], '1'),
+        select('neurons', 'neuronsperlayer', numbers([1, 2, 3, 4, 5, 6, 7, 8]), '4', 4),
+        select('activation', 'activationfn', [['tanh', text('tanh')], ['sigmoid', text('sigmoid')], ['relu', text('ReLU')]],
+            'tanh', 4),
+        number('lr', 'learningrate', [0.01, 3, 0.01, 2], 0.3, 4),
+    ]},
+    {sim: 'convolution', title: 'sim_conv', icon: '🖼️', fields: [
+        select('image', 'image', ['shapes', 'stripes', 'face', 'noisy'].map((k) => [k, 'conv_images_' + k]), 'shapes', 4),
+        select('preset', 'filter', KERNELS.map((k) => [k, 'conv_presets_' + k]), 'identity', 4),
+        select('target', 'targetfilter', [['', 'notarget']].concat(
+            KERNELS.filter((k) => k !== 'identity').map((k) => [k, 'conv_presets_' + k])), '', 4),
+    ]},
+    {sim: 'q_learning', title: 'sim_ql', icon: '🤖', fields: [
+        select('map', 'gridmap', ['maze', 'cliff', 'treasure'].map((k) => [k, 'ql_maps_' + k]), 'maze'),
+        number('alpha', 'learningrate', [0.05, 1, 0.05, 2], 0.5, 6, 'α'),
+        number('gamma', 'discount', [0, 1, 0.05, 2], 0.9, 6, 'γ'),
+        number('epsilon', 'exploration', [0, 1, 0.05, 2], 0.2, 6, 'ε'),
+    ]},
+    {sim: 'data_bias', title: 'sim_db', icon: '⚖️', fields: [
+        select('population', 'population', ['shifted', 'similar'].map((k) => [k, 'db_populations_' + k]), 'shifted'),
+        number('n', 'samplesize', [40, 400, 20, 0], 200),
+        number('share', 'groupshare', [0, 50, 5, 0], 5, 4, '%'),
+        number('test', 'testshare', [10, 50, 5, 0], 25, 4, '%'),
+        number('k', 'neighbors_k', [1, 25, 2, 0], 5, 4),
+    ]},
+    {sim: 'logistic', title: 'sim_log', icon: '📉', fields: [
+        select('dataset', 'scenario', ['machine', 'exam', 'ring'].map((k) => [k, 'log_datasets_' + k]), 'machine', 12),
+        number('w1', 'weight1', [-8, 8, 0.1, 2], 0, 4),
+        number('w2', 'weight2', [-8, 8, 0.1, 2], 0, 4),
+        number('b', 'bias', [-8, 8, 0.1, 2], 0, 4),
+        number('threshold', 'threshold', [0.05, 0.95, 0.05, 2], 0.5),
+        number('lr', 'learningrate', [0.05, 3, 0.05, 2], 0.5),
+    ]},
 ];
 
-/**
- * Escape HTML special characters for attributes and text.
- *
- * @param {string} str
- * @returns {string}
- */
-const escapeHtml = (str) => String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/"/g, '&quot;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
+/** Strings of tiny_aisim the dialog uses (besides the field labels and simulation titles). */
+const OWN = ['dialogtitle', 'insert', 'update', 'cancel', 'simtype', 'readonly', 'doubleclick_hint', 'preview',
+    'placeholder_note', 'notarget'];
 
 /**
- * Format simulation title and parameter summary for the editor placeholder.
+ * Load every string of the dialog: tiny_aisim labels and the filter_aisim option labels.
  *
- * @param {string} simType
- * @param {Object} attrs
- * @param {Object} s Localized strings
- * @returns {{title: string, desc: string, icon: string}}
+ * @returns {Promise<Object>} {own: {key: text}, filter: {key: text}}
  */
-const formatSummary = (simType, attrs, s) => {
-    switch (simType) {
-        case 'confusion_matrix':
-            return {
-                icon: '📊',
-                title: s.sim_cm,
-                desc: `${s.scenario}: ${attrs.scenario} | ${s.threshold}: ${attrs.threshold}`,
-            };
-        case 'gradient_descent':
-            return {
-                icon: '⚡',
-                title: s.sim_gd,
-                desc: `${s.costfunction}: ${attrs.profile} | α = ${attrs.lr} | w₀ = ${attrs.w0}`,
-            };
-        case 'regression':
-            return {
-                icon: '📈',
-                title: s.sim_reg,
-                desc: `${s.scenario}: ${attrs.dataset} | d = ${attrs.degree} | λ = ${attrs.lambda}`,
-            };
-        case 'knn_tree':
-            return {
-                icon: '🌲',
-                title: s.sim_knn,
-                desc: `${s.modeltype}: ${attrs.model} | ${s.scenario}: ${attrs.dataset} | k = ${attrs.k} | depth = ${attrs.depth}`,
-            };
-        case 'kmeans':
-            return {
-                icon: '🎯',
-                title: s.sim_km,
-                desc: `${s.scenario}: ${attrs.dataset} | K = ${attrs.k}`,
-            };
-        case 'neural_network':
-            return {
-                icon: '🧠',
-                title: s.sim_nn,
-                desc: `${s.scenario}: ${attrs.dataset} | ${s.hiddenlayers}: ${attrs.layers} | ` +
-                    `${s.neuronsperlayer}: ${attrs.neurons} | ${attrs.activation} | α = ${attrs.lr}`,
-            };
-        case 'convolution':
-            return {
-                icon: '🖼️',
-                title: s.sim_conv,
-                desc: `${s.image}: ${attrs.image} | ${s.filter}: ${attrs.preset}` +
-                    (attrs.target ? ` | ${s.targetfilter}: ${attrs.target}` : ''),
-            };
-        case 'q_learning':
-            return {
-                icon: '🤖',
-                title: s.sim_ql,
-                desc: `${s.gridmap}: ${attrs.map} | α = ${attrs.alpha} | γ = ${attrs.gamma} | ε = ${attrs.epsilon}`,
-            };
-        case 'data_bias':
-            return {
-                icon: '⚖️',
-                title: s.sim_db,
-                desc: `n = ${attrs.n} | ${s.groupshare}: ${attrs.share}% | ${s.testshare}: ${attrs.test}% | k = ${attrs.k}`,
-            };
-        case 'logistic':
-            return {
-                icon: '📉',
-                title: s.sim_log,
-                desc: `${s.scenario}: ${attrs.dataset} | w₁ = ${attrs.w1} | w₂ = ${attrs.w2} | b = ${attrs.b} | ` +
-                    `θ = ${attrs.threshold}`,
-            };
-        default:
-            return {
-                icon: '🤖',
-                title: s.pluginname,
-                desc: simType,
-            };
-    }
+const loadStrings = async() => {
+    const own = new Set(OWN);
+    const filter = new Set();
+    SIMS.forEach((s) => {
+        own.add(s.title);
+        s.fields.forEach((f) => {
+            own.add(f.label);
+            (f.options || []).forEach(([, label]) => {
+                if (typeof label !== 'string') {
+                    return;
+                }
+                (label === 'notarget' ? own : filter).add(label);
+            });
+        });
+    });
+    const requests = [...own].map((key) => ({key, component}))
+        .concat([...filter].map((key) => ({key, component: FILTER})));
+    const values = await getStrings(requests);
+    const result = {own: {}, filter: {}};
+    requests.forEach((r, i) => {
+        result[r.component === FILTER ? 'filter' : 'own'][r.key] = values[i];
+    });
+    return result;
 };
 
 /**
- * Build simulation HTML block for TinyMCE editor.
+ * Text of an option label.
  *
- * @param {string} simType
- * @param {Object} attrs
- * @param {Object} s Localized strings
- * @returns {string}
+ * @param {String|Object} label
+ * @param {Object} s strings from loadStrings()
+ * @returns {String}
  */
-const buildSimulationHtml = (simType, attrs, s) => {
-    const summary = formatSummary(simType, attrs, s);
-    const attrList = [`class="${cardClass}"`, `${dataAttribute}="${simType}"`];
+const optionText = (label, s) => {
+    if (typeof label !== 'string') {
+        return label.text;
+    }
+    return label === 'notarget' ? s.own.notarget : s.filter[label];
+};
 
-    Object.keys(attrs).forEach((key) => {
-        if (attrs[key] !== undefined && attrs[key] !== null && attrs[key] !== '') {
-            attrList.push(`data-${key}="${escapeHtml(attrs[key])}"`);
+/**
+ * The editor card (placeholder) of a simulation, as a DOM element.
+ *
+ * @param {Object} summary {icon, title, desc}
+ * @param {String} hint text of the pill
+ * @returns {HTMLElement}
+ */
+const placeholder = (summary, hint) => {
+    const el = (tag, cls, content) => {
+        const node = document.createElement(tag);
+        node.className = cls;
+        node.textContent = content;
+        return node;
+    };
+    const box = el('div', placeholderClass, '');
+    box.append(el('div', 'aisim-ph-icon', summary.icon), el('div', 'aisim-ph-title', summary.title),
+        el('div', 'aisim-ph-desc', summary.desc), el('span', 'aisim-ph-pill', hint));
+    return box;
+};
+
+/**
+ * Summary of a simulation for the editor card: its title and the chosen values.
+ *
+ * @param {Object} def entry of SIMS
+ * @param {Object} attrs data-* values
+ * @param {Object} s strings
+ * @returns {{icon: String, title: String, desc: String}}
+ */
+const summarise = (def, attrs, s) => ({
+    icon: def.icon,
+    title: s.own[def.title],
+    desc: def.fields.map((f) => {
+        let value = attrs[f.name];
+        if (f.options) {
+            const option = f.options.find(([v]) => v === value);
+            value = option ? optionText(option[1], s) : value;
+        }
+        return `${s.own[f.label]}${f.suffix ? ' ' + f.suffix : ''}: ${value}`;
+    }).join(' | '),
+});
+
+/**
+ * The simulation element inserted into the text: data-* attributes and the card shown in the editor.
+ *
+ * @param {Object} def entry of SIMS
+ * @param {Object} attrs data-* values
+ * @param {Object} s strings
+ * @returns {String} HTML
+ */
+const buildSimulationHtml = (def, attrs, s) => {
+    const card = document.createElement('div');
+    card.className = cardClass;
+    card.setAttribute(dataAttribute, def.sim);
+    Object.entries(attrs).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+            card.setAttribute('data-' + key, value);
         }
     });
-
-    const placeholder =
-        `<div class="${placeholderClass}" contenteditable="false">` +
-        `<div class="aisim-ph-icon">${summary.icon}</div>` +
-        `<div class="aisim-ph-title">${escapeHtml(summary.title)}</div>` +
-        `<div class="aisim-ph-desc">${escapeHtml(summary.desc)}</div>` +
-        `<span class="aisim-ph-pill">${escapeHtml(s.doubleclick_hint)}</span>` +
-        `</div>`;
-
-    return `<div ${attrList.join(' ')}>${placeholder}</div>`;
+    const ph = placeholder(summarise(def, attrs, s), s.own.doubleclick_hint);
+    ph.setAttribute('contenteditable', 'false');
+    card.append(ph);
+    return card.outerHTML;
 };
+
+/**
+ * Template context of the dialog.
+ *
+ * @param {String} curSim simulation selected at the start
+ * @param {Function} curAttr (name, fallback) => value of the edited element
+ * @param {Boolean} readonly
+ * @param {Object} s strings
+ * @returns {Object}
+ */
+const dialogContext = (curSim, curAttr, readonly, s) => ({
+    simtypes: SIMS.map((d) => ({value: d.sim, label: s.own[d.title], selected: d.sim === curSim})),
+    panels: SIMS.map((d) => ({
+        sim: d.sim,
+        hidden: d.sim !== curSim,
+        fields: d.fields.map((f) => {
+            // Attributes such as dataset or k mean different things in different simulations: use the edited value
+            // only for the simulation that is being edited.
+            const value = String(d.sim === curSim ? curAttr('data-' + f.name, f.value) : f.value);
+            const field = {
+                id: `aisim-${d.sim}-${f.name}`,
+                label: s.own[f.label] + (f.suffix ? ' ' + f.suffix : ''),
+                col: f.col,
+            };
+            if (f.options) {
+                field.isselect = true;
+                field.options = f.options.map(([v, label]) => ({value: v, label: optionText(label, s), selected: v === value}));
+            } else {
+                Object.assign(field, {isnumber: true, min: f.min, max: f.max, step: f.step, value});
+            }
+            return field;
+        }),
+    })),
+    readonly,
+    s: s.own,
+});
 
 /**
  * Open the simulation configuration dialog.
@@ -167,556 +289,76 @@ const buildSimulationHtml = (simType, attrs, s) => {
  * @param {Element|null} existingNode Existing simulation element if editing
  */
 export const openDialog = async(editor, existingNode = null) => {
-    const keys = [
-        'pluginname', 'dialogtitle', 'insert', 'update', 'cancel',
-        'simtype', 'sim_cm', 'sim_gd', 'sim_reg', 'sim_knn', 'sim_km', 'sim_nn', 'sim_conv', 'sim_ql', 'sim_db', 'sim_log',
-        'scenario', 'threshold', 'costfunction', 'learningrate',
-        'initialweight', 'polydegree', 'regularization', 'modeltype',
-        'neighbors_k', 'maxdepth', 'clusters_k', 'readonly',
-        'hiddenlayers', 'neuronsperlayer', 'activationfn', 'image', 'filter', 'targetfilter', 'notarget',
-        'gridmap', 'discount', 'exploration', 'population', 'samplesize', 'groupshare', 'testshare',
-        'logdataset_machine', 'logdataset_exam', 'logdataset_ring', 'weight1', 'weight2', 'bias',
-        'doubleclick_hint', 'preview', 'placeholder_note',
-    ];
-    const stringValues = await getStrings(keys.map((key) => ({key, component})));
-    const s = Object.fromEntries(keys.map((k, i) => [k, stringValues[i]]));
-
+    const s = await loadStrings();
     const isEdit = Boolean(existingNode);
     // Attribute of the simulation being edited, or the default for a new one.
     const curAttr = (name, fallback) => (existingNode && existingNode.getAttribute(name)) || fallback;
-    const curSim = curAttr(dataAttribute, 'confusion_matrix').replace(/-/g, '_');
+    const found = curAttr(dataAttribute, 'confusion_matrix').replace(/-/g, '_');
+    const curSim = SIMS.some((d) => d.sim === found) ? found : 'confusion_matrix';
 
-    const curAttrs = {
-        scenario: curAttr('data-scenario', 'quality'),
-        threshold: curAttr('data-threshold', '0.50'),
-        profile: curAttr('data-profile', 'convex'),
-        lr: curAttr('data-lr', '0.10'),
-        w0: curAttr('data-w0', '3.50'),
-        dataset: curAttr('data-dataset', 'sine'),
-        degree: curAttr('data-degree', '3'),
-        lambda: curAttr('data-lambda', '0.0'),
-        model: curAttr('data-model', 'knn'),
-        k: curAttr('data-k', '3'),
-        depth: curAttr('data-depth', '3'),
-        layers: curAttr('data-layers', '1'),
-        neurons: curAttr('data-neurons', '4'),
-        activation: curAttr('data-activation', 'tanh'),
-        image: curAttr('data-image', 'shapes'),
-        preset: curAttr('data-preset', 'identity'),
-        target: curAttr('data-target', ''),
-        map: curAttr('data-map', 'maze'),
-        alpha: curAttr('data-alpha', '0.50'),
-        gamma: curAttr('data-gamma', '0.90'),
-        epsilon: curAttr('data-epsilon', '0.20'),
-        population: curAttr('data-population', 'shifted'),
-        n: curAttr('data-n', '200'),
-        share: curAttr('data-share', '5'),
-        test: curAttr('data-test', '25'),
-        // Logistic regression has its own defaults for the attributes it shares with other simulations.
-        logdataset: curSim === 'logistic' ? curAttr('data-dataset', 'machine') : 'machine',
-        w1: curAttr('data-w1', '0.00'),
-        w2: curAttr('data-w2', '0.00'),
-        b: curAttr('data-b', '0.00'),
-        logthreshold: curSim === 'logistic' ? curAttr('data-threshold', '0.50') : '0.50',
-        loglr: curSim === 'logistic' ? curAttr('data-lr', '0.50') : '0.50',
-        readonly: curAttr('data-readonly', '0') === '1',
-    };
-
-    const opt = (val, text, selectedVal) =>
-        `<option value="${val}"${String(val) === String(selectedVal) ? ' selected' : ''}>${escapeHtml(text)}</option>`;
-
-    const bodyHtml =
-        `<div class="tiny-aisim-modal-body">` +
-        `<div class="form-group tiny-aisim-form-group">` +
-        `<label for="aisim-simtype-select"><strong>${s.simtype}</strong></label>` +
-        `<select id="aisim-simtype-select" class="form-control custom-select tiny-aisim-select">` +
-        opt('confusion_matrix', s.sim_cm, curSim) +
-        opt('gradient_descent', s.sim_gd, curSim) +
-        opt('regression', s.sim_reg, curSim) +
-        opt('knn_tree', s.sim_knn, curSim) +
-        opt('kmeans', s.sim_km, curSim) +
-        opt('neural_network', s.sim_nn, curSim) +
-        opt('convolution', s.sim_conv, curSim) +
-        opt('q_learning', s.sim_ql, curSim) +
-        opt('data_bias', s.sim_db, curSim) +
-        opt('logistic', s.sim_log, curSim) +
-        `</select>` +
-        `</div>` +
-
-        // Confusion Matrix Fields.
-        `<div class="aisim-panel-group" data-sim="confusion_matrix">` +
-        `<div class="form-group tiny-aisim-form-group">` +
-        `<label for="aisim-cm-scenario">${s.scenario}</label>` +
-        `<select id="aisim-cm-scenario" class="form-control custom-select">` +
-        opt('quality', 'Quality Inspection (Industrijska kontrola)', curAttrs.scenario) +
-        opt('medical', 'Medical Diagnostic (Medicinska dijagnostika)', curAttrs.scenario) +
-        opt('spam', 'Spam Filtering (Detekcija neželjene pošte)', curAttrs.scenario) +
-        `</select>` +
-        `</div>` +
-        `<div class="form-group tiny-aisim-form-group">` +
-        `<label for="aisim-cm-threshold">${s.threshold}: <span id="aisim-cm-th-val">${curAttrs.threshold}</span></label>` +
-        `<input type="range" id="aisim-cm-threshold" class="custom-range" ` +
-        `min="0.10" max="0.90" step="0.05" value="${curAttrs.threshold}">` +
-        `</div>` +
-        `</div>` +
-
-        // Gradient Descent Fields.
-        `<div class="aisim-panel-group" data-sim="gradient_descent" hidden>` +
-        `<div class="form-group tiny-aisim-form-group">` +
-        `<label for="aisim-gd-profile">${s.costfunction}</label>` +
-        `<select id="aisim-gd-profile" class="form-control custom-select">` +
-        opt('convex', 'Convex (J(w) = w² - Global Minimum)', curAttrs.profile) +
-        opt('nonconvex', 'Non-Convex (Multimodal - Local Minima)', curAttrs.profile) +
-        opt('plateau', 'Plateau (Flat region - Slow progress)', curAttrs.profile) +
-        `</select>` +
-        `</div>` +
-        `<div class="form-row">` +
-        `<div class="col-md-6 form-group tiny-aisim-form-group">` +
-        `<label for="aisim-gd-lr">${s.learningrate}</label>` +
-        `<input type="number" id="aisim-gd-lr" class="form-control" ` +
-        `min="0.01" max="1.50" step="0.01" value="${curAttrs.lr}">` +
-        `</div>` +
-        `<div class="col-md-6 form-group tiny-aisim-form-group">` +
-        `<label for="aisim-gd-w0">${s.initialweight}</label>` +
-        `<input type="number" id="aisim-gd-w0" class="form-control" ` +
-        `min="-5.00" max="5.00" step="0.10" value="${curAttrs.w0}">` +
-        `</div>` +
-        `</div>` +
-        `</div>` +
-
-        // Regression Fields.
-        `<div class="aisim-panel-group" data-sim="regression" hidden>` +
-        `<div class="form-group tiny-aisim-form-group">` +
-        `<label for="aisim-reg-dataset">${s.scenario}</label>` +
-        `<select id="aisim-reg-dataset" class="form-control custom-select">` +
-        opt('sine', 'Sine Wave with Noise (Sinusni signal sa šumom)', curAttrs.dataset) +
-        opt('quadratic', 'Quadratic Trend (Kvadratni trend)', curAttrs.dataset) +
-        opt('engine', 'Engine Data (Podaci o motoru)', curAttrs.dataset) +
-        `</select>` +
-        `</div>` +
-        `<div class="form-row">` +
-        `<div class="col-md-6 form-group tiny-aisim-form-group">` +
-        `<label for="aisim-reg-degree">${s.polydegree}</label>` +
-        `<select id="aisim-reg-degree" class="form-control custom-select">` +
-        opt('1', 'Degree 1 (Linear)', curAttrs.degree) +
-        opt('2', 'Degree 2 (Quadratic)', curAttrs.degree) +
-        opt('3', 'Degree 3 (Cubic)', curAttrs.degree) +
-        opt('4', 'Degree 4 (Quartic)', curAttrs.degree) +
-        opt('5', 'Degree 5 (Quintic)', curAttrs.degree) +
-        `</select>` +
-        `</div>` +
-        `<div class="col-md-6 form-group tiny-aisim-form-group">` +
-        `<label for="aisim-reg-lambda">${s.regularization}</label>` +
-        `<select id="aisim-reg-lambda" class="form-control custom-select">` +
-        opt('0.0', 'λ = 0.0 (None)', curAttrs.lambda) +
-        opt('0.001', 'λ = 0.001 (Small)', curAttrs.lambda) +
-        opt('0.01', 'λ = 0.01 (Medium)', curAttrs.lambda) +
-        opt('0.1', 'λ = 0.10 (Strong)', curAttrs.lambda) +
-        `</select>` +
-        `</div>` +
-        `</div>` +
-        `</div>` +
-
-        // Decision Boundaries (k-NN & Decision Tree) Fields.
-        `<div class="aisim-panel-group" data-sim="knn_tree" hidden>` +
-        `<div class="form-row">` +
-        `<div class="col-md-6 form-group tiny-aisim-form-group">` +
-        `<label for="aisim-knn-model">${s.modeltype}</label>` +
-        `<select id="aisim-knn-model" class="form-control custom-select">` +
-        opt('knn', 'k-Nearest Neighbors (k-NN)', curAttrs.model) +
-        opt('tree', 'Decision Tree (Stablo odlučivanja)', curAttrs.model) +
-        `</select>` +
-        `</div>` +
-        `<div class="col-md-6 form-group tiny-aisim-form-group">` +
-        `<label for="aisim-knn-dataset">${s.scenario}</label>` +
-        `<select id="aisim-knn-dataset" class="form-control custom-select">` +
-        opt('moons', 'Two Moons (Dva polumeseca)', curAttrs.dataset) +
-        opt('circles', 'Concentric Circles (Krugovi)', curAttrs.dataset) +
-        opt('blobs', 'Gaussian Blobs (Klasteri)', curAttrs.dataset) +
-        `</select>` +
-        `</div>` +
-        `</div>` +
-        `<div class="form-row">` +
-        `<div class="col-md-6 form-group tiny-aisim-form-group">` +
-        `<label for="aisim-knn-k">${s.neighbors_k}</label>` +
-        `<select id="aisim-knn-k" class="form-control custom-select">` +
-        opt('1', 'k = 1', curAttrs.k) +
-        opt('3', 'k = 3', curAttrs.k) +
-        opt('5', 'k = 5', curAttrs.k) +
-        opt('7', 'k = 7', curAttrs.k) +
-        opt('9', 'k = 9', curAttrs.k) +
-        opt('15', 'k = 15', curAttrs.k) +
-        `</select>` +
-        `</div>` +
-        `<div class="col-md-6 form-group tiny-aisim-form-group">` +
-        `<label for="aisim-knn-depth">${s.maxdepth}</label>` +
-        `<select id="aisim-knn-depth" class="form-control custom-select">` +
-        opt('1', 'Depth 1 (Stump)', curAttrs.depth) +
-        opt('2', 'Depth 2', curAttrs.depth) +
-        opt('3', 'Depth 3', curAttrs.depth) +
-        opt('4', 'Depth 4', curAttrs.depth) +
-        opt('5', 'Depth 5', curAttrs.depth) +
-        opt('6', 'Depth 6', curAttrs.depth) +
-        `</select>` +
-        `</div>` +
-        `</div>` +
-        `</div>` +
-
-        // K-Means Fields.
-        `<div class="aisim-panel-group" data-sim="kmeans" hidden>` +
-        `<div class="form-row">` +
-        `<div class="col-md-6 form-group tiny-aisim-form-group">` +
-        `<label for="aisim-km-dataset">${s.scenario}</label>` +
-        `<select id="aisim-km-dataset" class="form-control custom-select">` +
-        opt('blobs3', '3 Clusters (3 klastera)', curAttrs.dataset) +
-        opt('blobs4', '4 Clusters (4 klastera)', curAttrs.dataset) +
-        opt('uniform', 'Uniform – No Natural Groups (Bez prirodnih grupa)', curAttrs.dataset) +
-        `</select>` +
-        `</div>` +
-        `<div class="col-md-6 form-group tiny-aisim-form-group">` +
-        `<label for="aisim-km-k">${s.clusters_k}</label>` +
-        `<select id="aisim-km-k" class="form-control custom-select">` +
-        opt('2', 'K = 2', curAttrs.k) +
-        opt('3', 'K = 3', curAttrs.k) +
-        opt('4', 'K = 4', curAttrs.k) +
-        opt('5', 'K = 5', curAttrs.k) +
-        opt('6', 'K = 6', curAttrs.k) +
-        `</select>` +
-        `</div>` +
-        `</div>` +
-        `</div>` +
-
-        // Perceptron & Neural Network Fields.
-        `<div class="aisim-panel-group" data-sim="neural_network" hidden>` +
-        `<div class="form-row">` +
-        `<div class="col-md-6 form-group tiny-aisim-form-group">` +
-        `<label for="aisim-nn-dataset">${s.scenario}</label>` +
-        `<select id="aisim-nn-dataset" class="form-control custom-select">` +
-        opt('linear', 'Linearly Separable (Linearno razdvojivi)', curAttrs.dataset) +
-        opt('xor', 'XOR (Ukršteni)', curAttrs.dataset) +
-        opt('circles', 'Circle in a Circle (Krug u krugu)', curAttrs.dataset) +
-        `</select>` +
-        `</div>` +
-        `<div class="col-md-6 form-group tiny-aisim-form-group">` +
-        `<label for="aisim-nn-layers">${s.hiddenlayers}</label>` +
-        `<select id="aisim-nn-layers" class="form-control custom-select">` +
-        opt('0', '0 (Perceptron)', curAttrs.layers) +
-        opt('1', '1', curAttrs.layers) +
-        opt('2', '2', curAttrs.layers) +
-        `</select>` +
-        `</div>` +
-        `</div>` +
-        `<div class="form-row">` +
-        `<div class="col-md-4 form-group tiny-aisim-form-group">` +
-        `<label for="aisim-nn-neurons">${s.neuronsperlayer}</label>` +
-        `<select id="aisim-nn-neurons" class="form-control custom-select">` +
-        [1, 2, 3, 4, 5, 6, 7, 8].map((n) => opt(String(n), String(n), curAttrs.neurons)).join('') +
-        `</select>` +
-        `</div>` +
-        `<div class="col-md-4 form-group tiny-aisim-form-group">` +
-        `<label for="aisim-nn-activation">${s.activationfn}</label>` +
-        `<select id="aisim-nn-activation" class="form-control custom-select">` +
-        opt('tanh', 'tanh', curAttrs.activation) +
-        opt('sigmoid', 'sigmoid', curAttrs.activation) +
-        opt('relu', 'ReLU', curAttrs.activation) +
-        `</select>` +
-        `</div>` +
-        `<div class="col-md-4 form-group tiny-aisim-form-group">` +
-        `<label for="aisim-nn-lr">${s.learningrate}</label>` +
-        `<input type="number" id="aisim-nn-lr" class="form-control" ` +
-        `min="0.01" max="3.00" step="0.01" value="${curAttrs.lr}">` +
-        `</div>` +
-        `</div>` +
-        `</div>` +
-
-        // Convolution & Image Filters Fields.
-        `<div class="aisim-panel-group" data-sim="convolution" hidden>` +
-        `<div class="form-row">` +
-        `<div class="col-md-4 form-group tiny-aisim-form-group">` +
-        `<label for="aisim-conv-image">${s.image}</label>` +
-        `<select id="aisim-conv-image" class="form-control custom-select">` +
-        opt('shapes', 'Shapes (Oblici)', curAttrs.image) +
-        opt('stripes', 'Stripes (Pruge)', curAttrs.image) +
-        opt('face', 'Smiley (Smajli)', curAttrs.image) +
-        opt('noisy', 'Shapes with noise (Oblici sa šumom)', curAttrs.image) +
-        `</select>` +
-        `</div>` +
-        `<div class="col-md-4 form-group tiny-aisim-form-group">` +
-        `<label for="aisim-conv-preset">${s.filter}</label>` +
-        `<select id="aisim-conv-preset" class="form-control custom-select">` +
-        CONV_FILTERS.map(([v, text]) => opt(v, text, curAttrs.preset)).join('') +
-        `</select>` +
-        `</div>` +
-        `<div class="col-md-4 form-group tiny-aisim-form-group">` +
-        `<label for="aisim-conv-target">${s.targetfilter}</label>` +
-        `<select id="aisim-conv-target" class="form-control custom-select">` +
-        opt('', s.notarget, curAttrs.target) +
-        CONV_FILTERS.filter(([v]) => v !== 'identity').map(([v, text]) => opt(v, text, curAttrs.target)).join('') +
-        `</select>` +
-        `</div>` +
-        `</div>` +
-        `</div>` +
-
-        // Reinforcement Learning (Q-learning) Fields.
-        `<div class="aisim-panel-group" data-sim="q_learning" hidden>` +
-        `<div class="form-row">` +
-        `<div class="col-md-6 form-group tiny-aisim-form-group">` +
-        `<label for="aisim-ql-map">${s.gridmap}</label>` +
-        `<select id="aisim-ql-map" class="form-control custom-select">` +
-        opt('maze', 'Maze (Lavirint)', curAttrs.map) +
-        opt('cliff', 'Cliff (Litica)', curAttrs.map) +
-        opt('treasure', 'Near or far (Blizu ili daleko)', curAttrs.map) +
-        `</select>` +
-        `</div>` +
-        `<div class="col-md-6 form-group tiny-aisim-form-group">` +
-        `<label for="aisim-ql-alpha">${s.learningrate} α</label>` +
-        `<input type="number" id="aisim-ql-alpha" class="form-control" min="0.05" max="1" step="0.05" value="${curAttrs.alpha}">` +
-        `</div>` +
-        `</div>` +
-        `<div class="form-row">` +
-        `<div class="col-md-6 form-group tiny-aisim-form-group">` +
-        `<label for="aisim-ql-gamma">${s.discount} γ</label>` +
-        `<input type="number" id="aisim-ql-gamma" class="form-control" min="0" max="1" step="0.05" value="${curAttrs.gamma}">` +
-        `</div>` +
-        `<div class="col-md-6 form-group tiny-aisim-form-group">` +
-        `<label for="aisim-ql-epsilon">${s.exploration} ε</label>` +
-        `<input type="number" id="aisim-ql-epsilon" class="form-control" min="0" max="1" step="0.05" value="${curAttrs.epsilon}">` +
-        `</div>` +
-        `</div>` +
-        `</div>` +
-
-        // Data Split & Bias Fields.
-        `<div class="aisim-panel-group" data-sim="data_bias" hidden>` +
-        `<div class="form-row">` +
-        `<div class="col-md-6 form-group tiny-aisim-form-group">` +
-        `<label for="aisim-db-population">${s.population}</label>` +
-        `<select id="aisim-db-population" class="form-control custom-select">` +
-        opt('shifted', 'B behaves differently (B radi drugačije)', curAttrs.population) +
-        opt('similar', 'B behaves similarly (B radi slično)', curAttrs.population) +
-        `</select>` +
-        `</div>` +
-        `<div class="col-md-6 form-group tiny-aisim-form-group">` +
-        `<label for="aisim-db-n">${s.samplesize}</label>` +
-        `<input type="number" id="aisim-db-n" class="form-control" min="40" max="400" step="20" value="${curAttrs.n}">` +
-        `</div>` +
-        `</div>` +
-        `<div class="form-row">` +
-        `<div class="col-md-4 form-group tiny-aisim-form-group">` +
-        `<label for="aisim-db-share">${s.groupshare} (%)</label>` +
-        `<input type="number" id="aisim-db-share" class="form-control" min="0" max="50" step="5" value="${curAttrs.share}">` +
-        `</div>` +
-        `<div class="col-md-4 form-group tiny-aisim-form-group">` +
-        `<label for="aisim-db-test">${s.testshare} (%)</label>` +
-        `<input type="number" id="aisim-db-test" class="form-control" min="10" max="50" step="5" value="${curAttrs.test}">` +
-        `</div>` +
-        `<div class="col-md-4 form-group tiny-aisim-form-group">` +
-        `<label for="aisim-db-k">${s.neighbors_k}</label>` +
-        `<input type="number" id="aisim-db-k" class="form-control" min="1" max="25" step="2" value="${curAttrs.k}">` +
-        `</div>` +
-        `</div>` +
-        `</div>` +
-
-        // Logistic Regression Fields.
-        `<div class="aisim-panel-group" data-sim="logistic" hidden>` +
-        `<div class="form-group tiny-aisim-form-group">` +
-        `<label for="aisim-log-dataset">${s.scenario}</label>` +
-        `<select id="aisim-log-dataset" class="form-control custom-select">` +
-        opt('machine', s.logdataset_machine, curAttrs.logdataset) +
-        opt('exam', s.logdataset_exam, curAttrs.logdataset) +
-        opt('ring', s.logdataset_ring, curAttrs.logdataset) +
-        `</select>` +
-        `</div>` +
-        `<div class="form-row">` +
-        `<div class="col-md-4 form-group tiny-aisim-form-group">` +
-        `<label for="aisim-log-w1">${s.weight1}</label>` +
-        `<input type="number" id="aisim-log-w1" class="form-control" min="-8" max="8" step="0.1" value="${curAttrs.w1}">` +
-        `</div>` +
-        `<div class="col-md-4 form-group tiny-aisim-form-group">` +
-        `<label for="aisim-log-w2">${s.weight2}</label>` +
-        `<input type="number" id="aisim-log-w2" class="form-control" min="-8" max="8" step="0.1" value="${curAttrs.w2}">` +
-        `</div>` +
-        `<div class="col-md-4 form-group tiny-aisim-form-group">` +
-        `<label for="aisim-log-b">${s.bias}</label>` +
-        `<input type="number" id="aisim-log-b" class="form-control" min="-8" max="8" step="0.1" value="${curAttrs.b}">` +
-        `</div>` +
-        `</div>` +
-        `<div class="form-row">` +
-        `<div class="col-md-6 form-group tiny-aisim-form-group">` +
-        `<label for="aisim-log-threshold">${s.threshold}</label>` +
-        `<input type="number" id="aisim-log-threshold" class="form-control" min="0.05" max="0.95" step="0.05" ` +
-        `value="${curAttrs.logthreshold}">` +
-        `</div>` +
-        `<div class="col-md-6 form-group tiny-aisim-form-group">` +
-        `<label for="aisim-log-lr">${s.learningrate}</label>` +
-        `<input type="number" id="aisim-log-lr" class="form-control" min="0.05" max="3" step="0.05" ` +
-        `value="${curAttrs.loglr}">` +
-        `</div>` +
-        `</div>` +
-        `</div>` +
-
-        // Read-only Checkbox.
-        `<div class="form-group custom-control custom-checkbox tiny-aisim-form-group mt-3">` +
-        `<input type="checkbox" class="custom-control-input" id="aisim-opt-readonly"` +
-        (curAttrs.readonly ? ' checked' : '') + `>` +
-        `<label class="custom-control-label" for="aisim-opt-readonly">${s.readonly}</label>` +
-        `</div>` +
-
-        // Preview Box.
-        `<div class="mt-4 pt-3 border-top">` +
-        `<label><strong>${s.preview}</strong></label>` +
-        `<div id="aisim-preview-container"></div>` +
-        `<p class="small text-muted mt-2">${s.placeholder_note}</p>` +
-        `</div>` +
-        `</div>`;
-
-    const footerHtml =
-        `<button type="button" class="btn btn-primary" data-action="submit">` +
-        (isEdit ? s.update : s.insert) + `</button>` +
-        `<button type="button" class="btn btn-secondary" data-action="cancel">${s.cancel}</button>`;
-
+    const context = dialogContext(curSim, curAttr, curAttr('data-readonly', '0') === '1', s);
     const modal = await Modal.create({
-        title: s.dialogtitle,
-        body: bodyHtml,
-        footer: footerHtml,
+        title: s.own.dialogtitle,
+        body: Templates.render('tiny_aisim/dialog', context),
+        footer: Templates.render('tiny_aisim/dialog_footer', {submit: isEdit ? s.own.update : s.own.insert, s: s.own}),
         large: true,
         show: true,
         removeOnClose: true,
     });
+    await modal.getBodyPromise();
+    await modal.getFooterPromise();
 
     const root = modal.getRoot()[0];
     const simSelect = root.querySelector('#aisim-simtype-select');
-    const panels = root.querySelectorAll('.aisim-panel-group');
     const previewContainer = root.querySelector('#aisim-preview-container');
 
-    const cmThRange = root.querySelector('#aisim-cm-threshold');
-    const cmThVal = root.querySelector('#aisim-cm-th-val');
-
     /**
-     * Gather currently selected attributes from form.
+     * The chosen simulation and its data-* values, numbers kept within their limits.
      *
-     * @returns {{simType: string, attrs: Object}}
+     * @returns {{def: Object, attrs: Object}}
      */
     const getFormData = () => {
-        const simType = simSelect.value;
-        const attrs = {
-            readonly: root.querySelector('#aisim-opt-readonly').checked ? '1' : '0',
-        };
-
-        if (simType === 'confusion_matrix') {
-            attrs.scenario = root.querySelector('#aisim-cm-scenario').value;
-            attrs.threshold = parseFloat(root.querySelector('#aisim-cm-threshold').value).toFixed(2);
-        } else if (simType === 'gradient_descent') {
-            attrs.profile = root.querySelector('#aisim-gd-profile').value;
-            attrs.lr = parseFloat(root.querySelector('#aisim-gd-lr').value || '0.10').toFixed(2);
-            attrs.w0 = parseFloat(root.querySelector('#aisim-gd-w0').value || '3.50').toFixed(2);
-        } else if (simType === 'regression') {
-            attrs.dataset = root.querySelector('#aisim-reg-dataset').value;
-            attrs.degree = root.querySelector('#aisim-reg-degree').value;
-            attrs.lambda = root.querySelector('#aisim-reg-lambda').value;
-        } else if (simType === 'knn_tree') {
-            attrs.model = root.querySelector('#aisim-knn-model').value;
-            attrs.dataset = root.querySelector('#aisim-knn-dataset').value;
-            attrs.k = root.querySelector('#aisim-knn-k').value;
-            attrs.depth = root.querySelector('#aisim-knn-depth').value;
-        } else if (simType === 'kmeans') {
-            attrs.dataset = root.querySelector('#aisim-km-dataset').value;
-            attrs.k = root.querySelector('#aisim-km-k').value;
-        } else if (simType === 'neural_network') {
-            attrs.dataset = root.querySelector('#aisim-nn-dataset').value;
-            attrs.layers = root.querySelector('#aisim-nn-layers').value;
-            attrs.neurons = root.querySelector('#aisim-nn-neurons').value;
-            attrs.activation = root.querySelector('#aisim-nn-activation').value;
-            attrs.lr = parseFloat(root.querySelector('#aisim-nn-lr').value || '0.30').toFixed(2);
-        } else if (simType === 'convolution') {
-            attrs.image = root.querySelector('#aisim-conv-image').value;
-            attrs.preset = root.querySelector('#aisim-conv-preset').value;
-            attrs.target = root.querySelector('#aisim-conv-target').value;
-        } else if (simType === 'q_learning') {
-            const num = (id, fallback) => parseFloat(root.querySelector(id).value || fallback).toFixed(2);
-            attrs.map = root.querySelector('#aisim-ql-map').value;
-            attrs.alpha = num('#aisim-ql-alpha', '0.50');
-            attrs.gamma = num('#aisim-ql-gamma', '0.90');
-            attrs.epsilon = num('#aisim-ql-epsilon', '0.20');
-        } else if (simType === 'data_bias') {
-            const int = (id, fallback) => String(parseInt(root.querySelector(id).value, 10) || fallback);
-            attrs.population = root.querySelector('#aisim-db-population').value;
-            attrs.n = int('#aisim-db-n', 200);
-            attrs.share = int('#aisim-db-share', 0);
-            attrs.test = int('#aisim-db-test', 25);
-            attrs.k = int('#aisim-db-k', 5);
-        } else if (simType === 'logistic') {
-            const num = (id, fallback, lo, hi) => {
-                const v = parseFloat(root.querySelector(id).value);
-                return (isFinite(v) ? Math.min(hi, Math.max(lo, v)) : fallback).toFixed(2);
-            };
-            attrs.dataset = root.querySelector('#aisim-log-dataset').value;
-            attrs.w1 = num('#aisim-log-w1', 0, -8, 8);
-            attrs.w2 = num('#aisim-log-w2', 0, -8, 8);
-            attrs.b = num('#aisim-log-b', 0, -8, 8);
-            attrs.threshold = num('#aisim-log-threshold', 0.5, 0.05, 0.95);
-            attrs.lr = num('#aisim-log-lr', 0.5, 0.05, 3);
-        }
-
-        return {simType, attrs};
-    };
-
-    /**
-     * Update active panel and preview placeholder.
-     */
-    const updateUi = () => {
-        const selectedSim = simSelect.value;
-        panels.forEach((p) => {
-            if (p.getAttribute('data-sim') === selectedSim) {
-                p.removeAttribute('hidden');
+        const def = SIMS.find((d) => d.sim === simSelect.value);
+        const attrs = {readonly: root.querySelector('#aisim-opt-readonly').checked ? '1' : '0'};
+        def.fields.forEach((f) => {
+            const input = root.querySelector(`#aisim-${def.sim}-${f.name}`);
+            if (f.options) {
+                attrs[f.name] = input.value;
             } else {
-                p.setAttribute('hidden', 'hidden');
+                const v = parseFloat(input.value);
+                attrs[f.name] = (isFinite(v) ? Math.min(f.max, Math.max(f.min, v)) : f.value).toFixed(f.digits);
             }
         });
-
-        const {simType, attrs} = getFormData();
-        const summary = formatSummary(simType, attrs, s);
-
-        previewContainer.innerHTML =
-            `<div class="${placeholderClass}" style="margin: 0.5rem 0;">` +
-            `<div class="aisim-ph-icon">${summary.icon}</div>` +
-            `<div class="aisim-ph-title">${escapeHtml(summary.title)}</div>` +
-            `<div class="aisim-ph-desc">${escapeHtml(summary.desc)}</div>` +
-            `<span class="aisim-ph-pill">${escapeHtml(s.doubleclick_hint)}</span>` +
-            `</div>`;
+        return {def, attrs};
     };
 
-    // Event listeners.
-    simSelect.addEventListener('change', updateUi);
-    root.addEventListener('input', (e) => {
-        if (e.target.id === 'aisim-cm-threshold') {
-            cmThVal.textContent = parseFloat(cmThRange.value).toFixed(2);
-        }
-        updateUi();
-    });
-    root.addEventListener('change', updateUi);
+    const updateUi = () => {
+        root.querySelectorAll('.aisim-panel-group').forEach((p) => {
+            p.hidden = p.getAttribute('data-sim') !== simSelect.value;
+        });
+        const {def, attrs} = getFormData();
+        const ph = placeholder(summarise(def, attrs, s), s.own.doubleclick_hint);
+        ph.classList.add('my-2');
+        previewContainer.replaceChildren(ph);
+    };
 
-    // Initial sync.
+    root.addEventListener('input', updateUi);
+    root.addEventListener('change', updateUi);
     updateUi();
 
-    // Submit handler.
     root.querySelector('[data-action="submit"]').addEventListener('click', (e) => {
         e.preventDefault();
-        const {simType, attrs} = getFormData();
-        const newHtml = buildSimulationHtml(simType, attrs, s);
-
+        const {def, attrs} = getFormData();
+        const newHtml = buildSimulationHtml(def, attrs, s);
         if (isEdit && existingNode) {
             editor.dom.setOuterHTML(existingNode, newHtml);
         } else {
             editor.insertContent(newHtml);
         }
-
         modal.destroy();
     });
-
-    // Cancel handler.
     root.querySelector('[data-action="cancel"]').addEventListener('click', (e) => {
         e.preventDefault();
         modal.destroy();
     });
 };
-

@@ -1,0 +1,118 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template tiny_aisim/dialog
+
+    Body of the AI Simulation dialog: the simulation type, one panel of fields per simulation (only the chosen one
+    is shown), the read-only option and the preview of the editor card. Rendered by tiny_aisim/ui.
+
+    Context variables required for this template:
+    * simtypes - options of the simulation type select: {value, label, selected}
+    * panels - one per simulation: {sim, hidden, fields}; a field has id, label, col and either
+      isselect with options ({value, label, selected}) or isnumber with min, max, step and value
+    * readonly - the read-only option is checked
+    * s - tiny_aisim strings: simtype, readonly, preview, placeholder_note
+
+    Example context (json):
+    {
+        "simtypes": [
+            {"value": "confusion_matrix", "label": "Confusion Matrix & Classification Threshold", "selected": true},
+            {"value": "logistic", "label": "Logistic Regression", "selected": false}
+        ],
+        "panels": [
+            {
+                "sim": "confusion_matrix",
+                "hidden": false,
+                "fields": [
+                    {
+                        "id": "aisim-confusion_matrix-scenario",
+                        "label": "Domain Scenario / Dataset",
+                        "col": 6,
+                        "isselect": true,
+                        "options": [
+                            {"value": "quality", "label": "🏭 Industrial Quality Control", "selected": true},
+                            {"value": "medical", "label": "🏥 Medical Diagnostics (Screening)", "selected": false}
+                        ]
+                    },
+                    {
+                        "id": "aisim-confusion_matrix-threshold",
+                        "label": "Decision Threshold (θ)",
+                        "col": 6,
+                        "isnumber": true,
+                        "min": 0.05,
+                        "max": 0.95,
+                        "step": 0.05,
+                        "value": "0.5"
+                    }
+                ]
+            },
+            {
+                "sim": "logistic",
+                "hidden": true,
+                "fields": []
+            }
+        ],
+        "readonly": false,
+        "s": {
+            "simtype": "Simulation Type",
+            "readonly": "Read-only mode (prevent student parameter modification)",
+            "preview": "Simulation Preview",
+            "placeholder_note": "The interactive simulation engine will render automatically in student and reader view."
+        }
+    }
+}}
+<div class="tiny-aisim-modal-body">
+    <div class="form-group tiny-aisim-form-group">
+        <label for="aisim-simtype-select"><strong>{{s.simtype}}</strong></label>
+        <select id="aisim-simtype-select" class="form-control custom-select tiny-aisim-select">
+            {{#simtypes}}
+            <option value="{{value}}" {{#selected}}selected{{/selected}}>{{label}}</option>
+            {{/simtypes}}
+        </select>
+    </div>
+
+    {{#panels}}
+    <div class="aisim-panel-group form-row" data-sim="{{sim}}" {{#hidden}}hidden{{/hidden}}>
+        {{#fields}}
+        <div class="col-md-{{col}} form-group tiny-aisim-form-group">
+            <label for="{{id}}">{{label}}</label>
+            {{#isselect}}
+            <select id="{{id}}" class="form-control custom-select">
+                {{#options}}
+                <option value="{{value}}" {{#selected}}selected{{/selected}}>{{label}}</option>
+                {{/options}}
+            </select>
+            {{/isselect}}
+            {{#isnumber}}
+            <input type="number" id="{{id}}" class="form-control" min="{{min}}" max="{{max}}" step="{{step}}" value="{{value}}">
+            {{/isnumber}}
+        </div>
+        {{/fields}}
+    </div>
+    {{/panels}}
+
+    <div class="form-group custom-control custom-checkbox tiny-aisim-form-group mt-3">
+        <input type="checkbox" class="custom-control-input" id="aisim-opt-readonly" {{#readonly}}checked{{/readonly}}>
+        <label class="custom-control-label" for="aisim-opt-readonly">{{s.readonly}}</label>
+    </div>
+
+    <div class="mt-4 pt-3 border-top">
+        <p class="mb-1"><strong>{{s.preview}}</strong></p>
+        <div id="aisim-preview-container"></div>
+        <p class="small text-muted mt-2">{{s.placeholder_note}}</p>
+    </div>
+</div>

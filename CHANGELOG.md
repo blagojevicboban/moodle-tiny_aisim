@@ -2,6 +2,16 @@
 
 All notable changes to the `tiny_aisim` plugin will be documented in this file.
 
+## [Unreleased]
+### Changed
+- The dialog is a Mustache template (`templates/dialog.mustache`, `dialog_footer.mustache`); the fields of every
+  simulation are described as data in `ui.js`, and the editor card and preview are built as DOM nodes.
+- The option labels (scenarios, datasets, filters, maps) are the language strings of filter_aisim, so the dialog
+  shows them in the user's language instead of fixed English and Serbian texts.
+- Fields shared by several simulations (dataset, k, learning rate, threshold) keep their own default per simulation.
+- Regression accepts degrees 1 to 9 and any regularisation from 0 to 0.5, as the simulation does.
+- CI also runs the Mustache linter.
+
 ## [0.11.0] - 2026-11-14
 ### Added
 - Logistic Regression in the dialog: dataset, weights w1 and w2, bias b, decision threshold and learning rate.
