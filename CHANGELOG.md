@@ -2,6 +2,11 @@
 
 All notable changes to the `tiny_aisim` plugin will be documented in this file.
 
+## [1.0.0] - 2026-11-14
+
+### Changed
+- First stable release: maturity STABLE. All thirteen simulations in the dialog. Requires filter_aisim 1.0.0.
+
 ## [0.14.0] - 2026-11-14
 ### Added
 - Recurrent Neural Network (RNN) in the dialog: dataset, sequence length and the weights w, u and v.
