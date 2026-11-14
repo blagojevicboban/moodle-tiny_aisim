@@ -2,6 +2,14 @@
 
 All notable changes to the `tiny_aisim` plugin will be documented in this file.
 
+## [0.11.0] - 2026-11-14
+### Added
+- Logistic Regression in the dialog: dataset, weights w1 and w2, bias b, decision threshold and learning rate.
+- Teacher guide 1.2 (`docs/`).
+
+### Changed
+- Requires filter_aisim 0.11.0, which also makes the read-only option work in the inserted simulations.
+
 ## [0.10.1] - 2026-11-14
 ### Fixed
 - Added the missing capability string `aisim:viewplugin` (reviewer issue #2).

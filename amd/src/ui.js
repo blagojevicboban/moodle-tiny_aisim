@@ -115,6 +115,13 @@ const formatSummary = (simType, attrs, s) => {
                 title: s.sim_db,
                 desc: `n = ${attrs.n} | ${s.groupshare}: ${attrs.share}% | ${s.testshare}: ${attrs.test}% | k = ${attrs.k}`,
             };
+        case 'logistic':
+            return {
+                icon: '📉',
+                title: s.sim_log,
+                desc: `${s.scenario}: ${attrs.dataset} | w₁ = ${attrs.w1} | w₂ = ${attrs.w2} | b = ${attrs.b} | ` +
+                    `θ = ${attrs.threshold}`,
+            };
         default:
             return {
                 icon: '🤖',
@@ -162,12 +169,13 @@ const buildSimulationHtml = (simType, attrs, s) => {
 export const openDialog = async(editor, existingNode = null) => {
     const keys = [
         'pluginname', 'dialogtitle', 'insert', 'update', 'cancel',
-        'simtype', 'sim_cm', 'sim_gd', 'sim_reg', 'sim_knn', 'sim_km', 'sim_nn', 'sim_conv', 'sim_ql', 'sim_db',
+        'simtype', 'sim_cm', 'sim_gd', 'sim_reg', 'sim_knn', 'sim_km', 'sim_nn', 'sim_conv', 'sim_ql', 'sim_db', 'sim_log',
         'scenario', 'threshold', 'costfunction', 'learningrate',
         'initialweight', 'polydegree', 'regularization', 'modeltype',
         'neighbors_k', 'maxdepth', 'clusters_k', 'readonly',
         'hiddenlayers', 'neuronsperlayer', 'activationfn', 'image', 'filter', 'targetfilter', 'notarget',
         'gridmap', 'discount', 'exploration', 'population', 'samplesize', 'groupshare', 'testshare',
+        'logdataset_machine', 'logdataset_exam', 'logdataset_ring', 'weight1', 'weight2', 'bias',
         'doubleclick_hint', 'preview', 'placeholder_note',
     ];
     const stringValues = await getStrings(keys.map((key) => ({key, component})));
@@ -204,6 +212,13 @@ export const openDialog = async(editor, existingNode = null) => {
         n: curAttr('data-n', '200'),
         share: curAttr('data-share', '5'),
         test: curAttr('data-test', '25'),
+        // Logistic regression has its own defaults for the attributes it shares with other simulations.
+        logdataset: curSim === 'logistic' ? curAttr('data-dataset', 'machine') : 'machine',
+        w1: curAttr('data-w1', '0.00'),
+        w2: curAttr('data-w2', '0.00'),
+        b: curAttr('data-b', '0.00'),
+        logthreshold: curSim === 'logistic' ? curAttr('data-threshold', '0.50') : '0.50',
+        loglr: curSim === 'logistic' ? curAttr('data-lr', '0.50') : '0.50',
         readonly: curAttr('data-readonly', '0') === '1',
     };
 
@@ -224,6 +239,7 @@ export const openDialog = async(editor, existingNode = null) => {
         opt('convolution', s.sim_conv, curSim) +
         opt('q_learning', s.sim_ql, curSim) +
         opt('data_bias', s.sim_db, curSim) +
+        opt('logistic', s.sim_log, curSim) +
         `</select>` +
         `</div>` +
 
@@ -500,6 +516,44 @@ export const openDialog = async(editor, existingNode = null) => {
         `</div>` +
         `</div>` +
 
+        // Logistic Regression Fields.
+        `<div class="aisim-panel-group" data-sim="logistic" hidden>` +
+        `<div class="form-group tiny-aisim-form-group">` +
+        `<label for="aisim-log-dataset">${s.scenario}</label>` +
+        `<select id="aisim-log-dataset" class="form-control custom-select">` +
+        opt('machine', s.logdataset_machine, curAttrs.logdataset) +
+        opt('exam', s.logdataset_exam, curAttrs.logdataset) +
+        opt('ring', s.logdataset_ring, curAttrs.logdataset) +
+        `</select>` +
+        `</div>` +
+        `<div class="form-row">` +
+        `<div class="col-md-4 form-group tiny-aisim-form-group">` +
+        `<label for="aisim-log-w1">${s.weight1}</label>` +
+        `<input type="number" id="aisim-log-w1" class="form-control" min="-8" max="8" step="0.1" value="${curAttrs.w1}">` +
+        `</div>` +
+        `<div class="col-md-4 form-group tiny-aisim-form-group">` +
+        `<label for="aisim-log-w2">${s.weight2}</label>` +
+        `<input type="number" id="aisim-log-w2" class="form-control" min="-8" max="8" step="0.1" value="${curAttrs.w2}">` +
+        `</div>` +
+        `<div class="col-md-4 form-group tiny-aisim-form-group">` +
+        `<label for="aisim-log-b">${s.bias}</label>` +
+        `<input type="number" id="aisim-log-b" class="form-control" min="-8" max="8" step="0.1" value="${curAttrs.b}">` +
+        `</div>` +
+        `</div>` +
+        `<div class="form-row">` +
+        `<div class="col-md-6 form-group tiny-aisim-form-group">` +
+        `<label for="aisim-log-threshold">${s.threshold}</label>` +
+        `<input type="number" id="aisim-log-threshold" class="form-control" min="0.05" max="0.95" step="0.05" ` +
+        `value="${curAttrs.logthreshold}">` +
+        `</div>` +
+        `<div class="col-md-6 form-group tiny-aisim-form-group">` +
+        `<label for="aisim-log-lr">${s.learningrate}</label>` +
+        `<input type="number" id="aisim-log-lr" class="form-control" min="0.05" max="3" step="0.05" ` +
+        `value="${curAttrs.loglr}">` +
+        `</div>` +
+        `</div>` +
+        `</div>` +
+
         // Read-only Checkbox.
         `<div class="form-group custom-control custom-checkbox tiny-aisim-form-group mt-3">` +
         `<input type="checkbox" class="custom-control-input" id="aisim-opt-readonly"` +
@@ -590,6 +644,17 @@ export const openDialog = async(editor, existingNode = null) => {
             attrs.share = int('#aisim-db-share', 0);
             attrs.test = int('#aisim-db-test', 25);
             attrs.k = int('#aisim-db-k', 5);
+        } else if (simType === 'logistic') {
+            const num = (id, fallback, lo, hi) => {
+                const v = parseFloat(root.querySelector(id).value);
+                return (isFinite(v) ? Math.min(hi, Math.max(lo, v)) : fallback).toFixed(2);
+            };
+            attrs.dataset = root.querySelector('#aisim-log-dataset').value;
+            attrs.w1 = num('#aisim-log-w1', 0, -8, 8);
+            attrs.w2 = num('#aisim-log-w2', 0, -8, 8);
+            attrs.b = num('#aisim-log-b', 0, -8, 8);
+            attrs.threshold = num('#aisim-log-threshold', 0.5, 0.05, 0.95);
+            attrs.lr = num('#aisim-log-lr', 0.5, 0.05, 3);
         }
 
         return {simType, attrs};
