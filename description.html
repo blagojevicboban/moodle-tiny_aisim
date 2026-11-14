@@ -1,21 +1,52 @@
-<div class="tiny-aisim-description">
-  <h2>Tiny AI Simulation (tiny_aisim) Visual Editor Plugin</h2>
-  <p><em>Seamlessly insert and configure interactive AI and Machine Learning simulation cards in Moodle course content using TinyMCE 6 and TinyMCE 7.</em></p>
+<div>
+  <p><strong>AI Simulation button for TinyMCE</strong></p>
+  <p><em>Insert interactive machine learning simulations into any Moodle text, without writing HTML.</em></p>
+  <div>
+    <a href="https://github.com/blagojevicboban/moodle-tiny_aisim/actions/workflows/ci.yml" target="_blank" rel="noreferrer noopener"><img src="https://github.com/blagojevicboban/moodle-tiny_aisim/actions/workflows/ci.yml/badge.svg" alt="Moodle Plugin CI"></a>
+    <a href="https://moodle.org" target="_blank" rel="noreferrer noopener"><img src="https://img.shields.io/badge/Moodle-4.5%20to%205.3-orange.svg" alt="Moodle 4.5 to 5.3"></a>
+    <a href="https://github.com/blagojevicboban/moodle-tiny_aisim" target="_blank" rel="noreferrer noopener"><img src="https://img.shields.io/badge/License-GPL%20v3-blue.svg" alt="License GPL v3"></a>
+  </div>
 
-  <h3>Key Features</h3>
+  <p><strong>Live demo:</strong> try the plugins on <a href="https://aisim.tsp.edu.rs" target="_blank" rel="noreferrer noopener">aisim.tsp.edu.rs</a>. Log in as a guest, or use the demo accounts <strong>teacher</strong> (to try this editor button) and <strong>student</strong>, password <strong>Demo-2026</strong>. Everything is reset every night. The simulations alone, without Moodle: <a href="https://sim.aiforvet.eu" target="_blank" rel="noreferrer noopener">sim.aiforvet.eu</a>.</p>
+
+  <hr>
+  <p><strong>What's new in 0.10.1</strong></p>
   <ul>
-    <li><strong>Visual Integration:</strong> Adds an AI Simulation button to the TinyMCE editor toolbar and an entry in the Insert menu.</li>
-    <li><strong>Modal Configuration Dialog:</strong> Easy selection of simulation types (Gradient Descent, Confusion Matrix, Polynomial Regression, Decision Boundaries, K-Means, Neural Network, Convolution, Q-learning, Data Bias) with dynamic parameter inputs.</li>
-    <li><strong>Double-Click In-Place Editing:</strong> Simply double-click any existing simulation placeholder in the editor to re-open the configuration dialog with loaded values.</li>
-    <li><strong>Read-Only Protection:</strong> Option to lock simulation controls for students, ideal for guided theory lectures.</li>
-    <li><strong>Non-Destructive Cards:</strong> Safe <code>contenteditable="false"</code> cards protect metadata from accidental edits while typing surrounding lesson text.</li>
-    <li><strong>Multilingual Support:</strong> English, Serbian Latin, and Serbian Cyrillic.</li>
+    <li><strong>Review fixes:</strong> the capability string is defined, and every JavaScript source file has the full Moodle GPL header.</li>
   </ul>
 
-  <h3>Compatibility</h3>
+  <hr>
+  <p><strong>Features</strong></p>
   <ul>
-    <li>Compatible with Moodle 4.5 LTS, 5.0, 5.1, 5.2, and 5.3+.</li>
-    <li>TinyMCE 6 / TinyMCE 7 editor.</li>
-    <li>Requires <code>filter_aisim</code>.</li>
+    <li><strong>Button and menu item:</strong> an AI Simulation button in the editor toolbar and an entry in the Insert menu, in every editor on the site.</li>
+    <li><strong>Nine simulations:</strong> gradient descent, confusion matrix, polynomial regression, k-NN and decision tree, k-means, perceptron and neural network, convolution (image filters), Q-learning, and data split and bias.</li>
+    <li><strong>Settings in a dialog:</strong> the scenario or dataset and the starting values of each simulation, such as the threshold, learning rate, polynomial degree, k, tree depth, hidden layers, kernel or exploration rate, with a live preview.</li>
+    <li><strong>Edit again:</strong> double-click an inserted simulation to open the dialog with its current settings.</li>
+    <li><strong>Read-only mode:</strong> lock the controls when a simulation only shows a fixed example in a lecture.</li>
+    <li><strong>Safe in the text:</strong> the simulation is a protected card in the editor, so typing around it cannot break its settings.</li>
+    <li><strong>Translatable:</strong> all texts are language strings and can be translated in AMOS.</li>
   </ul>
+
+  <hr>
+  <p><strong>The AI simulation plugins</strong></p>
+  <ul>
+    <li><strong><a href="https://marketplace.moodle.com/plugins/filter_aisim" target="_blank" rel="noreferrer noopener">AI Simulations Viewer</a></strong>: runs the simulations in any content; required.</li>
+    <li><strong><a href="https://marketplace.moodle.com/plugins/tiny_aisim" target="_blank" rel="noreferrer noopener">AI Simulation button for TinyMCE</a></strong> (this plugin): inserts and edits the simulations in the editor.</li>
+    <li><strong><a href="https://marketplace.moodle.com/plugins/qtype_aisim" target="_blank" rel="noreferrer noopener">AI Simulation question type</a></strong>: quiz questions solved inside a simulation and graded automatically.</li>
+  </ul>
+
+  <hr>
+  <p><strong>Requirements</strong></p>
+  <ul>
+    <li><strong>Moodle:</strong> 4.5 LTS to 5.3, with the TinyMCE editor.</li>
+    <li><strong>filter_aisim:</strong> installed and enabled, so that the inserted simulations run for readers.</li>
+  </ul>
+
+  <hr>
+  <p><strong>Privacy</strong></p>
+  <p>The plugin stores no personal data and sends nothing to external services; it implements the Moodle Privacy API. The simulation settings are saved in the text as data attributes.</p>
+
+  <hr>
+  <p><strong>About</strong></p>
+  <p>Developed in the Erasmus+ project AI for VET for vocational schools. A teacher guide in English, Serbian, Slovak and Portuguese is in the <a href="https://github.com/blagojevicboban/moodle-tiny_aisim" target="_blank" rel="noreferrer noopener">GitHub repository</a>. Source code, issues and the changelog are there as well.</p>
 </div>
