@@ -2,7 +2,10 @@
 
 All notable changes to the `tiny_aisim` plugin will be documented in this file.
 
-## [Unreleased]
+## [0.12.0] - 2026-11-14
+### Added
+- Cross-Validation in the dialog: dataset, polynomial degree and number of folds. Requires filter_aisim 0.12.0.
+- Teacher guide 1.3 (`docs/`).
 ### Changed
 - The dialog is a Mustache template (`templates/dialog.mustache`, `dialog_footer.mustache`); the fields of every
   simulation are described as data in `ui.js`, and the editor card and preview are built as DOM nodes.

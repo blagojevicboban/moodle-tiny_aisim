@@ -132,6 +132,11 @@ const SIMS = [
         number('threshold', 'threshold', [0.05, 0.95, 0.05, 2], 0.5),
         number('lr', 'learningrate', [0.05, 3, 0.05, 2], 0.5),
     ]},
+    {sim: 'cross_validation', title: 'sim_cv', icon: '🔁', fields: [
+        select('dataset', 'scenario', ['sine', 'sensor', 'noisy'].map((k) => [k, 'cv_datasets_' + k]), 'sine', 12),
+        select('degree', 'polydegree', numbers([1, 2, 3, 4, 5, 6, 7, 8, 9]), '1'),
+        select('k', 'folds', numbers([2, 3, 4, 5, 6, 7, 8, 9, 10]), '5'),
+    ]},
 ];
 
 /** Strings of tiny_aisim the dialog uses (besides the field labels and simulation titles). */
