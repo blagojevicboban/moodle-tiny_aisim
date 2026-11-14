@@ -137,6 +137,13 @@ const SIMS = [
         select('degree', 'polydegree', numbers([1, 2, 3, 4, 5, 6, 7, 8, 9]), '1'),
         select('k', 'folds', numbers([2, 3, 4, 5, 6, 7, 8, 9, 10]), '5'),
     ]},
+    {sim: 'data_prep', title: 'sim_dp', icon: '🧹', fields: [
+        select('dataset', 'scenario', ['machine', 'patients'].map((k) => [k, 'dp_datasets_' + k]), 'machine'),
+        select('k', 'neighbors_k', numbers([1, 3, 5, 7, 9, 11, 13, 15]), '5'),
+        select('missing', 'missingvalues', ['zero', 'drop', 'mean', 'median'].map((k) => [k, 'dp_missing_' + k]), 'zero', 4),
+        select('outliers', 'outliers', ['keep', 'remove'].map((k) => [k, 'dp_outliers_' + k]), 'keep', 4),
+        select('scaling', 'scaling', ['none', 'minmax', 'zscore'].map((k) => [k, 'dp_scaling_' + k]), 'none', 4),
+    ]},
 ];
 
 /** Strings of tiny_aisim the dialog uses (besides the field labels and simulation titles). */

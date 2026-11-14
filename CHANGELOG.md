@@ -2,6 +2,12 @@
 
 All notable changes to the `tiny_aisim` plugin will be documented in this file.
 
+## [0.13.0] - 2026-11-14
+### Added
+- Data Preparation (EDA) in the dialog: dataset, k and the pipeline (missing values, outliers, scaling).
+  Requires filter_aisim 0.13.0.
+- Teacher guide 1.4 (`docs/`).
+
 ## [0.12.0] - 2026-11-14
 ### Added
 - Cross-Validation in the dialog: dataset, polynomial degree and number of folds. Requires filter_aisim 0.12.0.
