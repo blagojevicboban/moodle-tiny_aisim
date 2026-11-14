@@ -25,6 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['activationfn'] = 'Активациона функција';
+$string['aisim:viewplugin'] = 'Коришћење додатка АИ симулација у TinyMCE уређивачу';
 $string['button'] = 'Убаци АИ симулацију';
 $string['cancel'] = 'Откажи';
 $string['clusters_k'] = 'Број кластера (K)';

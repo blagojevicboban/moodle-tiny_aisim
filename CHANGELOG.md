@@ -2,6 +2,11 @@
 
 All notable changes to the `tiny_aisim` plugin will be documented in this file.
 
+## [0.10.1] - 2026-11-14
+### Fixed
+- Added the missing capability string `aisim:viewplugin` (reviewer issue #2).
+- Added the full Moodle GPL boilerplate header to all AMD source files (reviewer issue #3).
+
 ## [0.10.0] - 2026-11-08
 ### Changed
 - Placed the AI Simulation button directly in the main `content` toolbar for immediate accessibility.

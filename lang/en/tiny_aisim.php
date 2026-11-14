@@ -25,6 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['activationfn'] = 'Activation Function';
+$string['aisim:viewplugin'] = 'Use the AI Simulation plugin in the TinyMCE editor';
 $string['button'] = 'Insert AI Simulation';
 $string['cancel'] = 'Cancel';
 $string['clusters_k'] = 'Number of Clusters (K)';
